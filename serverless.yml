@@ -1,0 +1,27 @@
+org: gdgbackend
+app: gdg-registration-app
+service: gdg-registration-backend
+
+useDotenv: true
+
+provider:
+  name: aws
+  runtime: nodejs20.x
+  region: ap-south-1
+  timeout: 29          # API Gateway max is 29s
+  memorySize: 256
+  environment:
+    NODE_ENV: production
+    MONGO_URI: ${env:MONGO_URI}
+    EMAIL_USER: ${env:EMAIL_USER}
+    EMAIL_PASS: ${env:EMAIL_PASS}
+    RECAPTCHA_SECRET_KEY: ${env:RECAPTCHA_SECRET_KEY}
+    RAZORPAY_KEY: ${env:RAZORPAY_KEY}
+    RAZORPAY_SECRET: ${env:RAZORPAY_SECRET}
+    ADMIN_API_KEY: ${env:ADMIN_API_KEY}
+
+functions:
+  api:
+    handler: lambda.handler   # Points to lambda.cjs (CJS wrapper for ESM app)
+    events:
+      - httpApi: '*'
