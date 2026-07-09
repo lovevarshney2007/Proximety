@@ -56,6 +56,42 @@ The portal features a secure 2-step registration process (OTP Verification -> Re
 | `POST` | `/api/v1/verify-otp` | Verifies the OTP entered by the user |
 | `POST` | `/api/v1/register` | Final registration (Saves validated data) |
 
+### 📝 Request Payloads
+
+#### 1. Send OTP (`POST /api/v1/send-otp`)
+```json
+{
+  "name": "John Doe",
+  "email": "johndoe2512345@akgec.ac.in",
+  "studentNumber": "2512345",
+  "captchaToken": "optional_captcha_token"
+}
+```
+
+#### 2. Verify OTP (`POST /api/v1/verify-otp`)
+```json
+{
+  "email": "johndoe2512345@akgec.ac.in",
+  "otp": "123456"
+}
+```
+
+#### 3. Final Registration (`POST /api/v1/register`)
+```json
+{
+  "name": "John Doe",
+  "email": "johndoe2512345@akgec.ac.in",
+  "studentNumber": "2512345",
+  "gender": "Male",
+  "branch": "CSE",
+  "phone": "9876543210",
+  "residence": "Hosteller",
+  "unstopId": "johndoe_unstop",
+  "domain": "backend development",
+  "githubId": "johndoe_github",
+  "hackerrankId": "johndoe_hackerrank"
+}
+```
 ### 🛠️ Admin / Security Endpoints
 > **Note:** All Admin routes strictly require the `x-api-key` header.
 
