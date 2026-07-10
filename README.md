@@ -1,5 +1,6 @@
 # 🚀 GDG Event Registration Backend
 
+
 This is a robust, secure, and high-performance backend developed for managing participant registrations, payments, and entry attendance for the upcoming GDG (Google Developer Groups) event. 
 
 The portal features a secure 2-step registration process (OTP Verification -> Registration), strict data validation, advanced IP-based auto-banning mechanisms for spammers, attendance tracking using QR codes, and automated professional email confirmations.
