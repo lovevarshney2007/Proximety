@@ -45,7 +45,7 @@ app.use(
     origin: [
       "http://localhost:5173",
       "http://localhost:8080",
-      "https://gdg-registration-portal-git-main-nvneets-projects.vercel.app"
+      "https://gdg-registration-portal-git-main-nvneets-projects.vercel.app",
       "https://gdg-portal.vercel.app",
       "https://gdg-registration-portal.vercel.app",
       "https://register.gdgakgec.org",
