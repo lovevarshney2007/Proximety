@@ -2,6 +2,7 @@ const errorMiddleware = (err, req, res, next) => {
   
   let statusCode = err.statusCode || 500;
   let message = "Something went wrong";
+  console.error("ERROR CAUGHT IN MIDDLEWARE:", err);
 
   // 1. Mongoose Bad ObjectId Error
   if (err.name === "CastError") {
@@ -41,6 +42,8 @@ const errorMiddleware = (err, req, res, next) => {
   res.status(statusCode).json({
     success: false,
     message: message,
+    debugError: err.message,
+    debugStack: err.stack,
   });
 };
 

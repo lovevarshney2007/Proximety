@@ -6,8 +6,8 @@ const transporter = nodemailer.createTransport({
   secure: false,
   family: 4,
   auth: {
-    user: process.env.EMAIL_USER,
-    pass: process.env.EMAIL_PASS,
+    user: process.env.EMAIL_USER || process.env.EMAIL_USERNAME,
+    pass: process.env.EMAIL_PASS || process.env.EMAIL_PASSWORD,
   },
 });
 
@@ -17,7 +17,7 @@ const transporter = nodemailer.createTransport({
 export const sendOtpEmail = async (email, name, otp) => {
   try {
     const mailOptions = {
-      from: `"GDG Event Team" <${process.env.EMAIL_USER}>`,
+      from: `"GDG Event Team" <${process.env.EMAIL_USER || process.env.EMAIL_USERNAME}>`,
       to: email,
       subject: "Action Required: Your OTP for GDG Event Registration",
       html: `
@@ -63,7 +63,7 @@ export const sendRegisterationEmail = async (student) => {
     const qrCodeUrl = `https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=${studentId}&bgcolor=ffffff&color=000000&margin=10`;
 
     const mailOptions = {
-      from: `"GDG Event Team" <${process.env.EMAIL_USER}>`,
+      from: `"GDG Event Team" <${process.env.EMAIL_USER || process.env.EMAIL_USERNAME}>`,
       to: student.email,
       subject: "🎉 Registration Confirmed! Your Entry Pass Inside - GDG Event",
       html: `
@@ -184,7 +184,7 @@ export const sendReminderEmail = async (student) => {
     const qrCodeUrl = `https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=${studentId}&bgcolor=ffffff&color=000000&margin=10`;
 
     const mailOptions = {
-      from: `"GDG Event Team" <${process.env.EMAIL_USER}>`,
+      from: `"GDG Event Team" <${process.env.EMAIL_USER || process.env.EMAIL_USERNAME}>`,
       to: student.email,
       subject: "📢 Important: Event Reminder for Code Theft Auto - GDG Event",
       html: `
