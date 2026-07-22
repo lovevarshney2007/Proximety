@@ -20,7 +20,6 @@ jobs:
           key: ${{ secrets.EC2_SSH_KEY }}
           source: "."
           target: "~/GDGBackend"
-          rm: true
 
       - name: Deploy to EC2 via SSH
         uses: appleboy/ssh-action@v1
