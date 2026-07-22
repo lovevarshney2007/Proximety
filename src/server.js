@@ -97,7 +97,7 @@ app.use((req, res, next) => {
 app.use("/api", globalLimiter);
 
 app.get("/",(req,res) => {
-    res.send(" Backend is Running Well");
+    res.send(" Backend is Running Well - CI/CD Active! 🚀");
 });
 
 app.get("/api/v1/health", (req, res) => {
