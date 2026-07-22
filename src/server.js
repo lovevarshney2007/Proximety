@@ -46,6 +46,7 @@ app.use(
       "https://gdg-registration-portal-git-main-nvneets-projects.vercel.app",
       "https://gdg-portal.vercel.app",
       "https://gdg-registration-portal.vercel.app",
+      "https://registration.gdgakgec.org",
       "https://register.gdgakgec.org",
       "https://id-preview--1700c912-24a1-4274-bc47-72f8467d96d0.lovable.app",
       "https://gdg-admin-hub.vercel.app"
