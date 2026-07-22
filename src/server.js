@@ -28,12 +28,14 @@ await connectDB();
 
 app.set("trust proxy", 1);
 
+import morgan from "morgan";
+
 // middlewares
 app.use(requestId);
 app.use(express.json({limit : "10kb"}));
 app.use(express.urlencoded({ extended: true, limit: "10kb" }));
 
-// app.use(morgan("combined"));
+app.use(morgan("combined"));
 
 // security
 app.use(
