@@ -12,6 +12,16 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
+      - name: Copy files to EC2
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USER }}
+          key: ${{ secrets.EC2_SSH_KEY }}
+          source: "."
+          target: "~/GDGBackend"
+          rm: true
+
       - name: Deploy to EC2 via SSH
         uses: appleboy/ssh-action@v1
         with:
@@ -20,7 +30,6 @@ jobs:
           key: ${{ secrets.EC2_SSH_KEY }}
           script: |
             cd ~/GDGBackend
-            git pull origin main
             npm install --production
             pm2 restart ecosystem.config.cjs --env production || pm2 start ecosystem.config.cjs --env production
             pm2 save
