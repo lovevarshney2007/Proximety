@@ -1,7 +1,15 @@
 import rateLimit from "express-rate-limit";
+import MongoStore from "rate-limit-mongo";
 import { SuspiciousActivity } from "../models/suspiciousActivityModel.js";
 import { BlockedIp } from "../models/blockedIpModel.js";
-import { safePayload } from "../utils/safePayload.js"; // Ensure ye util exist karta ho
+import { safePayload } from "../utils/safePayload.js";
+
+const getMongoStore = (collectionName) =>
+  new MongoStore({
+    uri: process.env.MONGO_URI,
+    collectionName,
+    expireTimeMs: 60 * 60 * 1000,
+  });
 
 // ===============================
 //  IP BLACKLIST CHECKER
@@ -27,21 +35,23 @@ export const checkIpBlacklist = async (req, res, next) => {
 //  GLOBAL RATE LIMITER
 // ===============================
 export const globalLimiter = rateLimit({
-    windowMs: 15 * 60 * 1000, // 15 minutes
+    windowMs: 15 * 60 * 1000,
     max: 50,
     message: { success: false, message: "Too many general requests from this IP, please try again later." },
     standardHeaders: true,
     legacyHeaders: false,
+    store: getMongoStore("globalRateLimit"),
 });
 
 // ===============================
 //  AUTH RATE LIMITER
 // ===============================
 export const authLimiter = rateLimit({
-    windowMs: 30 * 60 * 1000, 
-    max: 20, 
+    windowMs: 30 * 60 * 1000,
+    max: 20,
     standardHeaders: true,
     legacyHeaders: false,
+    store: getMongoStore("authRateLimit"),
     handler: async (req, res, next, options) => {
         const clientIp = req.ip || req.socket?.remoteAddress;
         
@@ -81,10 +91,11 @@ export const authLimiter = rateLimit({
 //  STRICT REGISTRATION LIMITER
 // ===============================
 export const strictRegistrationLimiter = rateLimit({
-    windowMs: 60 * 60 * 1000, 
-    max: 30, 
+    windowMs: 60 * 60 * 1000,
+    max: 30,
     standardHeaders: true,
     legacyHeaders: false,
+    store: getMongoStore("registrationRateLimit"),
     handler: async (req, res, next, options) => {
         const clientIp = req.ip || req.socket?.remoteAddress;
 
@@ -126,6 +137,7 @@ export const chatbotLimiter = rateLimit({
     max: 20,
     standardHeaders: true,
     legacyHeaders: false,
+    store: getMongoStore("chatbotRateLimit"),
     handler: (req, res, next, options) => {
         res.status(options.statusCode).json({ success: false, message: "You are chatting too fast! Please wait a moment." });
     }

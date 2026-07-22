@@ -1,19 +1,22 @@
 import axios from "axios";
+import crypto from "crypto";
 
-import connectDB from "../config/db.js";
 import { Otp } from "../models/otpModel.js";
 import { Registration } from "../models/registrationModel.js";
 import { sendOtpEmail, sendRegisterationEmail } from "../utils/emailService.js";
 import { registrationValidation, sendOtpValidation } from "../validations/registrationValidation.js";
 
 
-const OTP_BYPASS_EMAIL = "razortest2515312@akgec.ac.in";
 const MAX_REGISTRATIONS = 150;
+const OTP_COOLDOWN_SECONDS = 60;
+const MAX_OTP_ATTEMPTS = 5;
 
 const normalizeEmail = (email = "") => email.trim().toLowerCase();
 
 const isOtpBypassEmail = (email = "") =>
-  normalizeEmail(email) === OTP_BYPASS_EMAIL;
+  process.env.NODE_ENV !== "production" &&
+  process.env.OTP_BYPASS_EMAIL &&
+  normalizeEmail(email) === normalizeEmail(process.env.OTP_BYPASS_EMAIL);
 
 const isRegistrationFull = async () => {
   const count = await Registration.countDocuments({ isVerified: true });
@@ -81,18 +84,6 @@ export const sendRegistrationOtp = async (req, res, next) => {
 
   try {
 
-    // await connectDB();
-
-    let isConnected = false;
-
-    const connectDBOnce = async () => {
-      if (isConnected) return;
-      await connectDB();
-      isConnected = true;
-    };
-
-    await connectDBOnce();
-
     if (await isRegistrationFull()) {
       return res.status(403).json({
         success: false,
@@ -137,10 +128,19 @@ export const sendRegistrationOtp = async (req, res, next) => {
       });
     }
 
+    // Cooldown check — prevent spamming same email
+    const existingOtp = await Otp.findOne({ email });
+    if (existingOtp) {
+      const secondsSinceCreated = (Date.now() - existingOtp.createdAt.getTime()) / 1000;
+      if (secondsSinceCreated < OTP_COOLDOWN_SECONDS) {
+        return res.status(429).json({
+          success: false,
+          message: `Please wait ${Math.ceil(OTP_COOLDOWN_SECONDS - secondsSinceCreated)} seconds before requesting a new OTP`,
+        });
+      }
+    }
 
-    const otp = Math.floor(
-      100000 + Math.random() * 900000
-    ).toString();
+    const otp = crypto.randomInt(100000, 999999).toString();
 
     await Otp.findOneAndDelete({ email });
 
@@ -213,7 +213,18 @@ export const verifyOtp = async (req, res, next) => {
       });
     }
 
+    // Check if max attempts exceeded
+    if (otpRecord.attempts >= MAX_OTP_ATTEMPTS) {
+      await Otp.findByIdAndDelete(otpRecord._id);
+      return res.status(400).json({
+        success: false,
+        message: "Too many failed attempts. Please request a new OTP.",
+      });
+    }
+
     if (otpRecord.otp !== otp) {
+      otpRecord.attempts += 1;
+      await otpRecord.save();
       return res.status(400).json({
         success: false,
         message: "OTP expired or invalid",

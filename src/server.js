@@ -2,11 +2,7 @@ import "dotenv/config";
 import express from "express";
 import cors from "cors";
 import helmet from "helmet";
-//import rateLimit from "express-rate-limit";
 import hpp from "hpp";
-import morgan from "morgan";
-//import { createServer } from "http";
-import serverless from "serverless-http";
 
 import connectDB from "./config/db.js";
 import requestId from "./middlewares/requestId.js";
@@ -80,13 +76,13 @@ app.use((req, res, next) => {
 
 import xss from "xss";
 
-const sanitizeObject = (obj) => {
-  if (!obj) return;
+const sanitizeObject = (obj, depth = 0) => {
+  if (!obj || depth > 10) return;
   for (let key in obj) {
     if (typeof obj[key] === "string") {
       obj[key] = xss(obj[key]);
     } else if (typeof obj[key] === "object") {
-      sanitizeObject(obj[key]);
+      sanitizeObject(obj[key], depth + 1);
     }
   }
 };
@@ -133,16 +129,16 @@ app.use((req, res) => {
 
 app.use(errorMiddleware);
 
-if (process.env.NODE_ENV !== "production") {
+// Vercel handles port binding itself — only listen on localhost/EC2
+if (!process.env.VERCEL) {
   const PORT = process.env.PORT || 8000;
   const server = app.listen(PORT, () => {
-    // console.log(`Server is running on Port : ${PORT}`);
+    console.log(`Server is running on Port : ${PORT}`);
   });
 
-  server.keepAliveTimeout = 120000; 
+  server.keepAliveTimeout = 120000;
   server.headersTimeout = 124000;
 }
-export default app;
 
-export const handler = serverless(app);
+export default app;
 

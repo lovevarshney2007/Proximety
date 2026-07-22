@@ -8,8 +8,10 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "node src/server.js",
     "dev": "nodemon src/server.js",
-    "deploy": "serverless deploy",
-    "deploy:remove": "serverless remove"
+    "pm2:start": "pm2 start ecosystem.config.cjs --env production",
+    "pm2:stop": "pm2 stop gdg-backend",
+    "pm2:restart": "pm2 restart gdg-backend",
+    "pm2:logs": "pm2 logs gdg-backend"
   },
   "repository": {
     "type": "git",
@@ -61,10 +63,9 @@
     "normalize-path": "^3.0.0",
     "picomatch": "^2.3.1",
     "pstree.remy": "^1.1.8",
-    "razorpay": "^2.9.6",
+    "rate-limit-mongo": "^2.3.2",
     "readdirp": "^3.6.0",
     "semver": "^7.7.4",
-    "serverless-http": "^4.0.0",
     "simple-update-notifier": "^2.0.0",
     "supports-color": "^5.5.0",
     "to-regex-range": "^5.0.1",

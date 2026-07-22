@@ -40,6 +40,10 @@ const otpSchema = new mongoose.Schema({
     required: [true, "OTP is required"],
     match: [/^\d{6}$/, "OTP must be exactly 6 digits long"],
   },
+  attempts: {
+    type: Number,
+    default: 0,
+  },
   isVerified: {
     type: Boolean,
     default: false,

@@ -38,13 +38,19 @@ const errorMiddleware = (err, req, res, next) => {
     statusCode = 401;
   }
 
-  // Final Response 
-  res.status(statusCode).json({
+  // Final Response
+  const response = {
     success: false,
     message: message,
-    debugError: err.message,
-    debugStack: err.stack,
-  });
+  };
+
+  // Only expose debug info in development
+  if (process.env.NODE_ENV !== "production") {
+    response.debugError = err.message;
+    response.debugStack = err.stack;
+  }
+
+  res.status(statusCode).json(response);
 };
 
 export default errorMiddleware;
