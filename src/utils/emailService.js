@@ -1,4 +1,5 @@
 import nodemailer from "nodemailer";
+import { generatePassImage } from "./passGenerator.js";
 
 const transporter = nodemailer.createTransport({
   host: "smtp.gmail.com",
@@ -55,12 +56,12 @@ export const sendOtpEmail = async (email, name, otp) => {
 
 
 // ==========================================
-// 2. GDG REGISTRATION SUCCESS EMAIL + QR CODE
+// 2. GDG REGISTRATION SUCCESS EMAIL + BARCODE PASS
 // ==========================================
 export const sendRegisterationEmail = async (student) => {
   try {
     const studentId = student._id ? student._id.toString() : student.studentNumber;
-    const qrCodeUrl = `https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=${studentId}&bgcolor=ffffff&color=000000&margin=10`;
+    const passDataUri = await generatePassImage(studentId);
 
     const mailOptions = {
       from: `"GDG Event Team" <${process.env.EMAIL_USER || process.env.EMAIL_USERNAME}>`,
@@ -126,9 +127,9 @@ export const sendRegisterationEmail = async (student) => {
             <div style="text-align: center; margin: 40px 0; padding: 30px 20px; border: 2px dashed #4285F4; border-radius: 12px; background-color: #f8faff;">
               <span style="background-color: #4285F4; color: #ffffff; padding: 6px 18px; border-radius: 20px; font-size: 12px; font-weight: bold; text-transform: uppercase; letter-spacing: 1px;">Official Entry Pass</span>
               <div style="margin-top: 25px;">
-                <img src="${qrCodeUrl}" alt="Entry QR Code" style="width: 180px; height: 180px; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.08);" />
+                <img src="${passDataUri}" alt="Entry Barcode Pass" style="max-width: 320px; width: 100%; height: auto; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.08);" />
               </div>
-              <p style="font-size: 14px; color: #666; margin-top: 20px; line-height: 1.5;"><strong>Note:</strong> Please present this QR code at the registration desk for a seamless check-in.</p>
+              <p style="font-size: 14px; color: #666; margin-top: 20px; line-height: 1.5;"><strong>Note:</strong> Please present this barcode at the registration desk for a seamless check-in.</p>
             </div>
 
             <div style="background-color: #fffdf5; padding: 24px; border-radius: 10px; margin: 25px 0; border-left: 4px solid #F4B400; border: 1px solid #fce8b2;">
@@ -167,7 +168,7 @@ export const sendRegisterationEmail = async (student) => {
     };
 
     await transporter.sendMail(mailOptions);
-    console.log(`✅ Registration Success Email (with QR) sent to ${student.email}`);
+    console.log(`✅ Registration Success Email (with barcode pass) sent to ${student.email}`);
   } catch (error) {
     console.error("❌ Error sending registration email:", error);
   }
@@ -181,7 +182,7 @@ export const sendReminderEmail = async (student) => {
   try {
     const whatsappLink = "https://chat.whatsapp.com/EHEkVLYg4ceAzhP8gPpVUL?mode=gi_t";
     const studentId = student._id ? student._id.toString() : student.studentNumber;
-    const qrCodeUrl = `https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=${studentId}&bgcolor=ffffff&color=000000&margin=10`;
+    const passDataUri = await generatePassImage(studentId);
 
     const mailOptions = {
       from: `"GDG Event Team" <${process.env.EMAIL_USER || process.env.EMAIL_USERNAME}>`,
@@ -261,9 +262,9 @@ Ensure you have joined the WhatsApp group for further instructions.
             <div style="text-align: center; margin: 40px 0; padding: 30px 20px; border: 2px dashed #4285F4; border-radius: 12px; background-color: #f8faff;">
               <span style="background-color: #4285F4; color: #ffffff; padding: 6px 18px; border-radius: 20px; font-size: 12px; font-weight: bold; text-transform: uppercase; letter-spacing: 1px;">Official Entry Pass</span>
               <div style="margin-top: 25px;">
-                <img src="${qrCodeUrl}" alt="Entry QR Code" style="width: 180px; height: 180px; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.08);" />
+                <img src="${passDataUri}" alt="Entry Barcode Pass" style="max-width: 320px; width: 100%; height: auto; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.08);" />
               </div>
-              <p style="font-size: 14px; color: #666; margin-top: 20px; line-height: 1.5;"><strong>Note:</strong> Please present this QR code at the registration desk for a seamless check-in.</p>
+              <p style="font-size: 14px; color: #666; margin-top: 20px; line-height: 1.5;"><strong>Note:</strong> Please present this barcode at the registration desk for a seamless check-in.</p>
             </div>
 
             <div style="background-color: #f4fcf7; padding: 24px; border-radius: 10px; margin: 25px 0; border-left: 4px solid #0F9D58; border: 1px solid #ceead6;">

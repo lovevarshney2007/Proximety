@@ -5,3 +5,5 @@ scripts/
 logs/
 *.zip
 *.conf
+test-email-preview.js
+test-endpoints.js
