@@ -4,6 +4,7 @@ import { AuditLog } from "../models/auditLogModel.js";
 import { SuspiciousActivity } from "../models/suspiciousActivityModel.js";
 import mongoose from "mongoose";
 import { sendReminderEmail } from "../utils/emailService.js";
+import { addIpToMemoryBlocklist, removeIpFromMemoryBlocklist } from "../middlewares/securityLimiters.js";
 
 // Helper for delay
 const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
@@ -113,6 +114,7 @@ export const blockIpManually = async (req, res, next) => {
       return res.status(400).json({ success: false, message: "IP Address is required" });
     }
     
+    addIpToMemoryBlocklist(ipAddress);
     await BlockedIp.findOneAndUpdate(
       { ipAddress }, 
       { ipAddress, reason: reason || "Manually blocked by admin" }, 
@@ -143,6 +145,7 @@ export const unblockIp = async (req, res, next) => {
       return res.status(400).json({ success: false, message: "IP Address is required" });
     }
 
+    removeIpFromMemoryBlocklist(ipAddress);
     await BlockedIp.findOneAndDelete({ ipAddress });
     
     await AuditLog.create({
