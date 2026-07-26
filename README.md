@@ -5,6 +5,7 @@ This is a robust, secure, and high-performance backend developed for managing pa
 
 The portal features a secure 2-step registration process (OTP Verification -> Registration), strict data validation, advanced IP-based auto-banning mechanisms for spammers, attendance tracking using QR codes, and automated professional email confirmations.
 
+
 ## ✨ Key Features
 
 - **🔐 2-Step Secure Registration:** Users must verify their college email (`@akgec.ac.in`) via OTP before proceeding to final registration.
