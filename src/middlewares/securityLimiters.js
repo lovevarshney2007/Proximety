@@ -28,7 +28,7 @@ export const checkIpBlacklist = async (req, res, next) => {
 // ===============================
 export const globalLimiter = rateLimit({
     windowMs: 15 * 60 * 1000,
-    max: 50, 
+    max: 200, 
     message: { success: false, message: "Too many general requests from this IP, please try again later." },
     standardHeaders: true,
     legacyHeaders: false,
@@ -59,13 +59,13 @@ export const authLimiter = rateLimit({
                 { upsert: true, new: true } 
             );
 
-            if (updatedActivity && updatedActivity.attemptCount > 10) {
+            if (updatedActivity && updatedActivity.attemptCount > 30) {
                 await BlockedIp.findOneAndUpdate(
                     { ipAddress: clientIp },
-                    { ipAddress: clientIp, reason: "Auto-blocked: Exceeded 10+ auth rate limit violations" },
+                    { ipAddress: clientIp, reason: "Auto-blocked: Exceeded 30+ auth rate limit violations" },
                     { upsert: true }
                 );
-                console.log(`🚨 DANGER: IP ${clientIp} permanently auto-blocked after 10+ attempts!`);
+                console.log(`🚨 DANGER: IP ${clientIp} permanently auto-blocked after 30+ attempts!`);
             } else {
                 console.log(`⚠️ Suspicious Activity Logged. IP: ${clientIp} | Count: ${updatedActivity.attemptCount}`);
             }
@@ -73,7 +73,7 @@ export const authLimiter = rateLimit({
             console.error("Logging/Blocking Error:", err);
         }
 
-        res.status(options.statusCode).json({ success: false, message: "Too many attempts. Please try again after an hour." });
+        res.status(options.statusCode).json({ success: false, message: "Too many attempts. Please try again after 30 minutes." });
     }
 });
 
@@ -82,7 +82,7 @@ export const authLimiter = rateLimit({
 // ===============================
 export const strictRegistrationLimiter = rateLimit({
     windowMs: 60 * 60 * 1000,
-    max: 30, 
+    max: 5, 
     standardHeaders: true,
     legacyHeaders: false,
     handler: async (req, res, next, options) => {
@@ -102,13 +102,13 @@ export const strictRegistrationLimiter = rateLimit({
                 { upsert: true, new: true }
             );
 
-            if (updatedActivity && updatedActivity.attemptCount > 50) {
+            if (updatedActivity && updatedActivity.attemptCount > 20) {
                 await BlockedIp.findOneAndUpdate(
                     { ipAddress: clientIp },
-                    { ipAddress: clientIp, reason: "Auto-blocked: Exceeded 50+ registration spam attempts" },
+                    { ipAddress: clientIp, reason: "Auto-blocked: Exceeded 20+ registration spam attempts" },
                     { upsert: true }
                 );
-                console.log(`🚨 DANGER: IP ${clientIp} permanently auto-blocked after 50+ attempts!`);
+                console.log(`🚨 DANGER: IP ${clientIp} permanently auto-blocked after 20+ attempts!`);
             }
         } catch (err) {
             console.error("Error logging activity:", err);
