@@ -1,5 +1,5 @@
 import nodemailer from "nodemailer";
-import { generatePassImage } from "./passGenerator.js";
+import { renderTicket } from "../ticket/renderTicket.js";
 
 const transporter = nodemailer.createTransport({
   host: "smtp.gmail.com",
@@ -56,12 +56,11 @@ export const sendOtpEmail = async (email, name, otp) => {
 
 
 // ==========================================
-// 2. GDG REGISTRATION SUCCESS EMAIL + BARCODE PASS
+// 2. GDG REGISTRATION SUCCESS EMAIL + QR TICKET PASS
 // ==========================================
 export const sendRegisterationEmail = async (student) => {
   try {
-    const studentId = student._id ? student._id.toString() : student.studentNumber;
-    const passDataUri = await generatePassImage(studentId);
+    const passDataUri = await renderTicket(student);
 
     const mailOptions = {
       from: `"GDG Event Team" <${process.env.EMAIL_USER || process.env.EMAIL_USERNAME}>`,
@@ -73,7 +72,7 @@ export const sendRegisterationEmail = async (student) => {
           <div style="background-color: #f8faff; text-align: center; border-bottom: 4px solid #4285F4; padding-top: 35px;">
             <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTeT5WipoI_LHakY6xsGOShL3OiX9xyiwZXOw&s" alt="Event Logo" style="max-height: 80px; width: auto; margin: 0 auto; display: block;" />
             <div style="padding: 20px 20px 25px 20px;">
-              <h1 style="color: #4285F4; margin: 0; font-size: 30px; font-weight: 800; letter-spacing: 0.5px;">Code Theft Auto 🚀</h1>
+              <h1 style="color: #4285F4; margin: 0; font-size: 30px; font-weight: 800; letter-spacing: 0.5px;">Proximity 6.0 🚀</h1>
             </div>
           </div>
 
@@ -98,11 +97,10 @@ export const sendRegisterationEmail = async (student) => {
 
             <div style="background-color: #f4f8ff; padding: 24px; border-radius: 10px; margin: 25px 0; border-left: 4px solid #4285F4; border: 1px solid #e1e9fa;">
               <h3 style="color: #4285F4; margin-top: 0; font-size: 18px;">📍 Event Details</h3>
-              <p style="margin: 8px 0; color: #333; font-size: 15px;"><strong>Dates:</strong> 10th - 11th April</p>
-              <p style="margin: 8px 0; color: #333; font-size: 15px;"><strong>Venue:</strong> Main Seminar Hall</p>
+              <p style="margin: 8px 0; color: #333; font-size: 15px;"><strong>Date:</strong> 30th July, 2026</p>
+              <p style="margin: 8px 0; color: #333; font-size: 15px;"><strong>Venue:</strong> CS/IT Block</p>
               <div style="margin-top: 15px; padding-left: 14px; border-left: 2px solid #aecbfa;">
-                <p style="margin: 6px 0; color: #555; font-size: 14px;"><strong>Day 1 Time:</strong> 3:15 PM – 5:15 PM</p>
-                <p style="margin: 6px 0; color: #555; font-size: 14px;"><strong>Day 2 Time:</strong> 1:00 PM – 3:00 PM</p>
+                <p style="margin: 6px 0; color: #555; font-size: 14px;"><strong>Time:</strong> 4:00 PM – 7:00 PM</p>
               </div>
             </div>
 
@@ -127,15 +125,15 @@ export const sendRegisterationEmail = async (student) => {
             <div style="text-align: center; margin: 40px 0; padding: 30px 20px; border: 2px dashed #4285F4; border-radius: 12px; background-color: #f8faff;">
               <span style="background-color: #4285F4; color: #ffffff; padding: 6px 18px; border-radius: 20px; font-size: 12px; font-weight: bold; text-transform: uppercase; letter-spacing: 1px;">Official Entry Pass</span>
               <div style="margin-top: 25px;">
-                <img src="${passDataUri}" alt="Entry Barcode Pass" style="max-width: 320px; width: 100%; height: auto; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.08);" />
+                <img src="${passDataUri}" alt="Entry QR Ticket Pass" style="max-width: 560px; width: 100%; height: auto; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.08);" />
               </div>
-              <p style="font-size: 14px; color: #666; margin-top: 20px; line-height: 1.5;"><strong>Note:</strong> Please present this barcode at the registration desk for a seamless check-in.</p>
+              <p style="font-size: 14px; color: #666; margin-top: 20px; line-height: 1.5;"><strong>Note:</strong> Please present this QR code at the registration desk for a seamless check-in.</p>
             </div>
 
             <div style="background-color: #fffdf5; padding: 24px; border-radius: 10px; margin: 25px 0; border-left: 4px solid #F4B400; border: 1px solid #fce8b2;">
               <h3 style="color: #d9a000; margin-top: 0; font-size: 18px;">⚠️ Important Instructions</h3>
               <ul style="color: #555; font-size: 15px; padding-left: 20px; margin-bottom: 0; line-height: 1.7;">
-                <li style="margin-bottom: 8px;">Bring your <strong>laptop on Day 2</strong> of the event.</li>
+                <li style="margin-bottom: 8px;">Please ensure your <strong>mobile phones are kept on silent mode</strong> during the event.</li>
                 <li style="margin-bottom: 8px;">Carry your physical <strong>college ID card</strong> for verification.</li>
                 <li>Reach the venue at least <strong>15 minutes early</strong> to avoid queues.</li>
               </ul>
@@ -144,16 +142,16 @@ export const sendRegisterationEmail = async (student) => {
             <div style="background-color: #fff9f9; padding: 24px; border-radius: 10px; margin: 25px 0; border-left: 4px solid #EA4335; border: 1px solid #fad2cf;">
               <h3 style="color: #d93025; margin-top: 0; font-size: 18px;">⚖️ Discipline & Decorum</h3>
               <ul style="color: #555; font-size: 15px; padding-left: 20px; margin-bottom: 0; line-height: 1.7;">
-                <li style="margin-bottom: 8px;">Maintain strict discipline inside the seminar hall at all times.</li>
-                <li style="margin-bottom: 8px;">No eating or drinking is permitted inside the venue.</li>
-                <li>Follow the instructions provided by the event coordinators strictly.</li>
+                <li style="margin-bottom: 8px;">Any kind of cheating attempt will result in immediate disqualification.</li>
+                <li style="margin-bottom: 8px;">Bring your own pen, paper will be provided.</li>
+                <li>Smart watches and other such devices need to be submitted before the start of the drive.</li>
               </ul>
             </div>
 
             <div style="background-color: #f4fcf7; padding: 24px; border-radius: 10px; margin: 25px 0; border-left: 4px solid #0F9D58; border: 1px solid #ceead6;">
               <h3 style="color: #0d8a4d; margin-top: 0; font-size: 18px;">📞 Need Help? Contact Us</h3>
-              <p style="color: #444; font-size: 15px; margin: 10px 0;"><strong>Jyoti Pundir:</strong> 9354359797</p>
-              <p style="color: #444; font-size: 15px; margin: 0;"><strong>Abhinav Gaur:</strong> 9687979387</p>
+              <p style="color: #444; font-size: 15px; margin: 10px 0;"><strong>Naman Srivastava:</strong> 7275573139</p>
+              <p style="color: #444; font-size: 15px; margin: 0;"><strong>Trisha Singh:</strong> 9687979387</p>
             </div>
             
           </div>
@@ -168,7 +166,7 @@ export const sendRegisterationEmail = async (student) => {
     };
 
     await transporter.sendMail(mailOptions);
-    console.log(`✅ Registration Success Email (with barcode pass) sent to ${student.email}`);
+    console.log(`✅ Registration Success Email (with QR ticket) sent to ${student.email}`);
   } catch (error) {
     console.error("❌ Error sending registration email:", error);
   }
@@ -181,20 +179,19 @@ export const sendRegisterationEmail = async (student) => {
 export const sendReminderEmail = async (student) => {
   try {
     const whatsappLink = "https://chat.whatsapp.com/EHEkVLYg4ceAzhP8gPpVUL?mode=gi_t";
-    const studentId = student._id ? student._id.toString() : student.studentNumber;
-    const passDataUri = await generatePassImage(studentId);
+    const passDataUri = await renderTicket(student);
 
     const mailOptions = {
       from: `"GDG Event Team" <${process.env.EMAIL_USER || process.env.EMAIL_USERNAME}>`,
       to: student.email,
-      subject: "📢 Important: Event Reminder for Code Theft Auto - GDG Event",
+      subject: "📢 Important: Event Reminder for Proximity 6.0 - GDG Event",
       html: `
         <div style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; max-width: 600px; margin: 0 auto; padding: 0; border: 1px solid #e0e0e0; border-radius: 12px; background-color: #ffffff; overflow: hidden; box-shadow: 0 8px 24px rgba(0,0,0,0.06);">
           
           <div style="background-color: #f8faff; text-align: center; border-bottom: 4px solid #4285F4; padding-top: 35px;">
             <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTeT5WipoI_LHakY6xsGOShL3OiX9xyiwZXOw&s" alt="Event Logo" style="max-height: 80px; width: auto; margin: 0 auto; display: block;" />
             <div style="padding: 20px 20px 25px 20px;">
-              <h1 style="color: #4285F4; margin: 0; font-size: 30px; font-weight: 800; letter-spacing: 0.5px;">Reminder for Code Theft Auto 🚀</h1>
+              <h1 style="color: #4285F4; margin: 0; font-size: 30px; font-weight: 800; letter-spacing: 0.5px;">Reminder for Proximity 6.0 🚀</h1>
             </div>
           </div>
 
@@ -211,15 +208,6 @@ export const sendReminderEmail = async (student) => {
 This is a reminder for the upcoming event. We are excited to see you there! 
 <br/><br/>
 
-<strong>Jai Hind 1st Year,</strong><br/><br/>
-
-It has been brought to our notice that some of you prefer to have lunch at 1:00 PM. 
-To avoid any last-minute issues or delays in the event, we are providing a buffer of 30 minutes.<br/><br/>
-
-<span style="color:#EA4335; font-weight:bold;">
-Therefore, the event will commence at <strong>1:30 PM</strong>.
-</span><br/><br/>
-
 Ensure you have joined the WhatsApp group for further instructions.
 </p>
             
@@ -233,11 +221,10 @@ Ensure you have joined the WhatsApp group for further instructions.
 
             <div style="background-color: #f4f8ff; padding: 24px; border-radius: 10px; margin: 25px 0; border-left: 4px solid #4285F4; border: 1px solid #e1e9fa;">
               <h3 style="color: #4285F4; margin-top: 0; font-size: 18px;">📍 Event Details</h3>
-              <p style="margin: 8px 0; color: #333; font-size: 15px;"><strong>Dates:</strong> 10th - 11th April</p>
-              <p style="margin: 8px 0; color: #333; font-size: 15px;"><strong>Venue:</strong> CS-IT SEMINAR HALL <span style="color: #EA4335; font-size: 13px; font-weight: bold; margin-left: 8px; background: #fff1f0; padding: 2px 8px; border-radius: 4px; border: 1px solid #fad2cf;">(VENUE CHANGED)</span></p>
+              <p style="margin: 8px 0; color: #333; font-size: 15px;"><strong>Date:</strong> 30th July, 2026</p>
+              <p style="margin: 8px 0; color: #333; font-size: 15px;"><strong>Venue:</strong> CS/IT Block</p>
               <div style="margin-top: 15px; padding-left: 14px; border-left: 2px solid #aecbfa;">
-                <p style="margin: 6px 0; color: #555; font-size: 14px;"><strong>Day 1 Time:</strong> 3:00 PM – 5:00 PM</p>
-                <p style="margin: 6px 0; color: #555; font-size: 14px;"><strong>Day 2 Time:</strong> 1:30 PM – 4:00 PM </p>
+                <p style="margin: 6px 0; color: #555; font-size: 14px;"><strong>Time:</strong> 4:00 PM – 7:00 PM</p>
               </div>
             </div>
 
@@ -262,15 +249,15 @@ Ensure you have joined the WhatsApp group for further instructions.
             <div style="text-align: center; margin: 40px 0; padding: 30px 20px; border: 2px dashed #4285F4; border-radius: 12px; background-color: #f8faff;">
               <span style="background-color: #4285F4; color: #ffffff; padding: 6px 18px; border-radius: 20px; font-size: 12px; font-weight: bold; text-transform: uppercase; letter-spacing: 1px;">Official Entry Pass</span>
               <div style="margin-top: 25px;">
-                <img src="${passDataUri}" alt="Entry Barcode Pass" style="max-width: 320px; width: 100%; height: auto; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.08);" />
+                <img src="${passDataUri}" alt="Entry QR Ticket Pass" style="max-width: 560px; width: 100%; height: auto; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.08);" />
               </div>
-              <p style="font-size: 14px; color: #666; margin-top: 20px; line-height: 1.5;"><strong>Note:</strong> Please present this barcode at the registration desk for a seamless check-in.</p>
+              <p style="font-size: 14px; color: #666; margin-top: 20px; line-height: 1.5;"><strong>Note:</strong> Please present this QR code at the registration desk for a seamless check-in.</p>
             </div>
 
             <div style="background-color: #f4fcf7; padding: 24px; border-radius: 10px; margin: 25px 0; border-left: 4px solid #0F9D58; border: 1px solid #ceead6;">
               <h3 style="color: #0d8a4d; margin-top: 0; font-size: 18px;">📞 Need Help? Contact Us</h3>
-              <p style="color: #444; font-size: 15px; margin: 10px 0;"><strong>Jyoti Pundir:</strong> 9354359797</p>
-              <p style="color: #444; font-size: 15px; margin: 0;"><strong>Abhinav Gaur:</strong> 9687979387</p>
+              <p style="color: #444; font-size: 15px; margin: 10px 0;"><strong>Naman Srivastava:</strong> 7275573139</p>
+              <p style="color: #444; font-size: 15px; margin: 0;"><strong>Trisha Singh:</strong> 9687979387</p>
             </div>
             
           </div>
