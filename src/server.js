@@ -48,6 +48,8 @@ app.use(
       "https://gdg-registration-portal.vercel.app",
       "https://registration.gdgakgec.org",
       "https://register.gdgakgec.org",
+      "https://registration.gdgakgec.in",
+      "https://register.gdgakgec.in",
       "https://id-preview--1700c912-24a1-4274-bc47-72f8467d96d0.lovable.app",
       "https://gdg-admin-hub.vercel.app"
     ],
