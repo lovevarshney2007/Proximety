@@ -129,7 +129,7 @@ export const sendRegisterationEmail = async (student) => {
             <div style="text-align: center; margin: 40px 0; padding: 30px 20px; border: 2px dashed #4285F4; border-radius: 12px; background-color: #f8faff;">
               <span style="background-color: #4285F4; color: #ffffff; padding: 6px 18px; border-radius: 20px; font-size: 12px; font-weight: bold; text-transform: uppercase; letter-spacing: 1px;">Official Entry Pass</span>
               <div style="margin-top: 25px;">
-                <img src="${passDataUri}" alt="Entry QR Ticket Pass" style="max-width: 560px; width: 100%; height: auto; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.08);" />
+                <img src="cid:gdg-ticket-pass" alt="Entry QR Ticket Pass" style="max-width: 560px; width: 100%; height: auto; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.08);" />
               </div>
               <p style="font-size: 14px; color: #666; margin-top: 20px; line-height: 1.5;"><strong>Note:</strong> Please present this QR code at the registration desk for a seamless check-in.</p>
             </div>
@@ -167,6 +167,13 @@ export const sendRegisterationEmail = async (student) => {
 
         </div>
       `,
+      attachments: [
+        {
+          filename: `GDG-Ticket-${student.studentNumber || "2026"}.png`,
+          path: passDataUri,
+          cid: "gdg-ticket-pass",
+        },
+      ],
     };
 
     await transporter.sendMail(mailOptions);
@@ -253,7 +260,7 @@ Ensure you have joined the WhatsApp group for further instructions.
             <div style="text-align: center; margin: 40px 0; padding: 30px 20px; border: 2px dashed #4285F4; border-radius: 12px; background-color: #f8faff;">
               <span style="background-color: #4285F4; color: #ffffff; padding: 6px 18px; border-radius: 20px; font-size: 12px; font-weight: bold; text-transform: uppercase; letter-spacing: 1px;">Official Entry Pass</span>
               <div style="margin-top: 25px;">
-                <img src="${passDataUri}" alt="Entry QR Ticket Pass" style="max-width: 560px; width: 100%; height: auto; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.08);" />
+                <img src="cid:gdg-ticket-pass" alt="Entry QR Ticket Pass" style="max-width: 560px; width: 100%; height: auto; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.08);" />
               </div>
               <p style="font-size: 14px; color: #666; margin-top: 20px; line-height: 1.5;"><strong>Note:</strong> Please present this QR code at the registration desk for a seamless check-in.</p>
             </div>
@@ -273,6 +280,13 @@ Ensure you have joined the WhatsApp group for further instructions.
 
         </div>
       `,
+      attachments: [
+        {
+          filename: `GDG-Ticket-${student.studentNumber || "2026"}.png`,
+          path: passDataUri,
+          cid: "gdg-ticket-pass",
+        },
+      ],
     };
 
     await transporter.sendMail(mailOptions);
