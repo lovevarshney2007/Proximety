@@ -1,7 +1,7 @@
 import axios from "axios";
 import crypto from "crypto";
 
-import { Otp } from "../models/otpModel.js";
+import { checkCooldown, storeOtp, verifyOtpInRedis, isOtpVerified, clearVerification } from "../services/otpRedisService.js";
 import { Registration } from "../models/registrationModel.js";
 import { sendOtpEmail, sendRegisterationEmail } from "../utils/emailService.js";
 import { registrationValidation, sendOtpValidation } from "../validations/registrationValidation.js";
@@ -128,27 +128,18 @@ export const sendRegistrationOtp = async (req, res, next) => {
       });
     }
 
-    // Cooldown check — prevent spamming same email
-    const existingOtp = await Otp.findOne({ email });
-    if (existingOtp) {
-      const secondsSinceCreated = (Date.now() - existingOtp.createdAt.getTime()) / 1000;
-      if (secondsSinceCreated < OTP_COOLDOWN_SECONDS) {
-        return res.status(429).json({
-          success: false,
-          message: `Please wait ${Math.ceil(OTP_COOLDOWN_SECONDS - secondsSinceCreated)} seconds before requesting a new OTP`,
-        });
-      }
+    // Cooldown check — prevent spamming same email in Redis (<1ms, 0 DB query)
+    const { isOnCooldown, remainingSeconds } = await checkCooldown(email);
+    if (isOnCooldown) {
+      return res.status(429).json({
+        success: false,
+        message: `Please wait ${remainingSeconds} seconds before requesting a new OTP`,
+      });
     }
 
     const otp = crypto.randomInt(100000, 999999).toString();
 
-    await Otp.findOneAndDelete({ email });
-
-    await Otp.create({
-      email,
-      studentNumber,
-      otp,
-    });
+    await storeOtp(email, studentNumber, otp);
 
     await sendOtpEmail(email, name, otp);
 
@@ -204,36 +195,14 @@ export const verifyOtp = async (req, res, next) => {
       });
     }
 
-    const otpRecord = await Otp.findOne({ email });
+    const verificationResult = await verifyOtpInRedis(email, otp, MAX_OTP_ATTEMPTS);
 
-    if (!otpRecord) {
+    if (!verificationResult.success) {
       return res.status(400).json({
         success: false,
-        message: "OTP expired or invalid",
+        message: verificationResult.message,
       });
     }
-
-    // Check if max attempts exceeded
-    if (otpRecord.attempts >= MAX_OTP_ATTEMPTS) {
-      await Otp.findByIdAndDelete(otpRecord._id);
-      return res.status(400).json({
-        success: false,
-        message: "Too many failed attempts. Please request a new OTP.",
-      });
-    }
-
-    if (otpRecord.otp !== otp) {
-      otpRecord.attempts += 1;
-      await otpRecord.save();
-      return res.status(400).json({
-        success: false,
-        message: "OTP expired or invalid",
-      });
-    }
-
-    otpRecord.isVerified = true;
-
-    await otpRecord.save();
 
     res.status(200).json({
       success: true,
@@ -277,9 +246,9 @@ export const registerStudent = async (req, res, next) => {
 
     /* ===== OTP CHECK ===== */
 
-    const otpRecord = shouldBypassOtp ? null : await Otp.findOne({ email });
+    const isVerifiedInRedis = shouldBypassOtp ? true : await isOtpVerified(email);
 
-    if (!shouldBypassOtp && (!otpRecord || !otpRecord.isVerified)) {
+    if (!isVerifiedInRedis) {
       return res.status(400).json({
         success: false,
         message: "OTP not verified",
@@ -328,9 +297,9 @@ export const registerStudent = async (req, res, next) => {
 
     // await sendRegisterationEmail(student);
 
-    // Safety check: delete record only if it exists (prevents crash on bypass email)
-    if (otpRecord) {
-      await Otp.findByIdAndDelete(otpRecord._id);
+    // Clean up verified state in Redis after successful registration in DB
+    if (!shouldBypassOtp) {
+      await clearVerification(email);
     }
 
     await sendRegisterationEmail(student);

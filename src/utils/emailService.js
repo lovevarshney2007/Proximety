@@ -16,6 +16,10 @@ const transporter = nodemailer.createTransport({
 // 1. GDG OTP EMAIL
 // ==========================================
 export const sendOtpEmail = async (email, name, otp) => {
+  if (process.env.TEST_MODE === "true") {
+    console.log(`🧪 [TEST_MODE] Simulated sending OTP ${otp} to ${email}`);
+    return;
+  }
   try {
     const mailOptions = {
       from: `"GDG Event Team" <${process.env.EMAIL_USER || process.env.EMAIL_USERNAME}>`,
