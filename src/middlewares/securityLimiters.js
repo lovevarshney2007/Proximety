@@ -137,8 +137,8 @@ const handleThrottledRateLimitViolation = (req, res, options, eventType, maxAtte
 // ===============================
 export const globalLimiter = rateLimit({
     windowMs: 15 * 60 * 1000,
-    max: 50, 
-    message: "Too many general requests from this IP, please try again later.",
+    max: 100, 
+    message: "Too many general requests from this IP, please try again later or switch to another network.",
     standardHeaders: true,
     legacyHeaders: false,
 });
@@ -148,8 +148,8 @@ export const globalLimiter = rateLimit({
 // ===============================
 export const authLimiter = rateLimit({
     windowMs: 30 * 60 * 1000,
-    max: 20, 
-    message: "Too many attempts. Please try again after an hour.",
+    max: 10, 
+    message: "Too many attempts. Please try again later or switch to another network.",
     standardHeaders: true,
     legacyHeaders: false,
     handler: (req, res, next, options) => {
@@ -168,9 +168,9 @@ export const authLimiter = rateLimit({
 //  STRICT REGISTRATION LIMITER
 // ===============================
 export const strictRegistrationLimiter = rateLimit({
-    windowMs: 60 * 60 * 1000,
-    max: 30, 
-    message: "Too many registration attempts. Please try again after one hour.",
+    windowMs: 30 * 60 * 1000,
+    max: 10, 
+    message: "Too many registration attempts. Please try again later or switch to another network.",
     standardHeaders: true,
     legacyHeaders: false,
     handler: (req, res, next, options) => {
