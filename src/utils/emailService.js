@@ -90,14 +90,6 @@ export const sendRegisterationEmail = async (student) => {
 
             <p style="font-size: 16px; color: #333;">Hi <strong>${student.name || "Participant"}</strong>,</p>
             <p style="font-size: 16px; color: #555; line-height: 1.6;">Congratulations! Your registration for the upcoming GDG Event has been successfully completed. We are thrilled to have you onboard.</p>
-            
-            <div style="text-align: center; margin: 35px 0;">
-              <a href="https://chat.whatsapp.com/EHEkVLYg4ceAzhP8gPpVUL?mode=gi_t" 
-                 style="background-color: #25D366; color: #ffffff; padding: 16px 32px; border-radius: 50px; text-decoration: none; font-size: 16px; font-weight: bold; display: inline-block; box-shadow: 0 4px 12px rgba(37, 211, 102, 0.3); transition: all 0.3s ease;">
-                 Join WhatsApp Group
-              </a>
-              <p style="font-size: 13px; color: #777; margin-top: 14px;">Join the group for all important event updates!</p>
-            </div>
 
             <div style="background-color: #f4f8ff; padding: 24px; border-radius: 10px; margin: 25px 0; border-left: 4px solid #4285F4; border: 1px solid #e1e9fa;">
               <h3 style="color: #4285F4; margin-top: 0; font-size: 18px;">📍 Event Details</h3>
@@ -189,7 +181,6 @@ export const sendRegisterationEmail = async (student) => {
 // ==========================================
 export const sendReminderEmail = async (student) => {
   try {
-    const whatsappLink = "https://chat.whatsapp.com/EHEkVLYg4ceAzhP8gPpVUL?mode=gi_t";
     const passDataUri = await renderTicket(student);
 
     const mailOptions = {
@@ -215,20 +206,9 @@ export const sendReminderEmail = async (student) => {
             </div>
 
             <p style="font-size: 16px; color: #333;">Hi <strong>${student.name || "Participant"}</strong>,</p>
-           <p style="font-size: 16px; color: #555; line-height: 1.6;">
+            <p style="font-size: 16px; color: #555; line-height: 1.6;">
 This is a reminder for the upcoming event. We are excited to see you there! 
-<br/><br/>
-
-Ensure you have joined the WhatsApp group for further instructions.
 </p>
-            
-            <div style="text-align: center; margin: 35px 0;">
-              <a href="${whatsappLink}" 
-                 style="background-color: #25D366; color: #ffffff; padding: 16px 32px; border-radius: 50px; text-decoration: none; font-size: 16px; font-weight: bold; display: inline-block; box-shadow: 0 4px 12px rgba(37, 211, 102, 0.3); transition: all 0.3s ease;">
-                 Join WhatsApp Group
-              </a>
-              <p style="font-size: 15px; color: #d93025; margin-top: 14px; font-weight: bold;">⚠️ Must join whatsapp group for further instruction!</p>
-            </div>
 
             <div style="background-color: #f4f8ff; padding: 24px; border-radius: 10px; margin: 25px 0; border-left: 4px solid #4285F4; border: 1px solid #e1e9fa;">
               <h3 style="color: #4285F4; margin-top: 0; font-size: 18px;">📍 Event Details</h3>

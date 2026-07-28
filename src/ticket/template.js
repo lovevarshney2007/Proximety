@@ -229,22 +229,22 @@ export function buildTicketSVG(data) {
 
     <!-- GDG text block -->
     <text x="100" y="42"
-          font-family="'Arial', 'Helvetica', sans-serif"
+          font-family="'Liberation Sans', 'DejaVu Sans', 'Arial', sans-serif"
           font-size="13" font-weight="bold" fill="#FFFFFF">Google Developer Groups</text>
     <text x="100" y="58"
-          font-family="'Arial', 'Helvetica', sans-serif"
+          font-family="'Liberation Sans', 'DejaVu Sans', 'Arial', sans-serif"
           font-size="10" fill="#AAAAAA">on campus Ajay Kumar Garg Engineering College</text>
 
     <!-- "REGISTRATION CONFIRMED" heading -->
     <text x="${W - 72}" y="62"
-          font-family="'Impact', 'Arial Black', 'Arial', sans-serif"
+          font-family="'Liberation Sans', 'DejaVu Sans', 'Arial', sans-serif"
           font-size="46" font-weight="900" font-style="italic"
           fill="#CC0000"
           filter="url(#redGlow)"
           text-anchor="end"
           letter-spacing="3">REGISTRATION</text>
     <text x="${W - 72}" y="96"
-          font-family="'Impact', 'Arial Black', 'Arial', sans-serif"
+          font-family="'Liberation Sans', 'DejaVu Sans', 'Arial', sans-serif"
           font-size="40" font-weight="900" font-style="italic"
           fill="#CC0000"
           filter="url(#redGlow)"
@@ -284,7 +284,7 @@ export function buildTicketSVG(data) {
 
     <!-- "SCAN FOR ENTRY" label -->
     <text x="${qrX + qrSize / 2}" y="${qrY + qrSize + bracketGap + 26}"
-          font-family="'Arial', 'Helvetica', sans-serif"
+          font-family="'Liberation Sans', 'DejaVu Sans', 'Arial', sans-serif"
           font-size="15" font-weight="bold" fill="#00CC66"
           text-anchor="middle" letter-spacing="2">SCAN FOR ENTRY</text>
 
@@ -295,7 +295,7 @@ export function buildTicketSVG(data) {
 
     <!-- Participant NAME —— centred in right column -->
     <text x="${Math.round((divX + W) / 2)}" y="238"
-          font-family="'Impact', 'Arial Black', 'Arial', sans-serif"
+          font-family="'Liberation Sans', 'DejaVu Sans', 'Arial', sans-serif"
           font-size="50" font-weight="900"
           fill="url(#goldGrad)"
           text-anchor="middle"
@@ -305,7 +305,7 @@ export function buildTicketSVG(data) {
 
     <!-- Student ID / Registration ID -->
     <text x="${Math.round((divX + W) / 2)}" y="290"
-          font-family="'Courier New', 'Courier', monospace"
+          font-family="'DejaVu Sans Mono', 'Liberation Mono', 'Courier New', monospace"
           font-size="32" font-weight="bold"
           fill="url(#goldGrad)"
           text-anchor="middle"
@@ -319,13 +319,13 @@ export function buildTicketSVG(data) {
 
     <!-- Event info — 2 rows: Venue on first, Date+Time on second -->
     <text x="${Math.round((divX + W) / 2)}" y="345"
-          font-family="'Arial', 'Helvetica', sans-serif"
+          font-family="'Liberation Sans', 'DejaVu Sans', 'Arial', sans-serif"
           font-size="14" fill="#CCCCCC"
           text-anchor="middle">
       <tspan font-weight="bold" fill="#FFFFFF">Venue:</tspan> ${displayVenue}
     </text>
     <text x="${Math.round((divX + W) / 2)}" y="370"
-          font-family="'Arial', 'Helvetica', sans-serif"
+          font-family="'Liberation Sans', 'DejaVu Sans', 'Arial', sans-serif"
           font-size="14" fill="#CCCCCC"
           text-anchor="middle">
       <tspan font-weight="bold" fill="#FFFFFF">Date:</tspan> ${displayDate}
