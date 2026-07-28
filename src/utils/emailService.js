@@ -26,26 +26,40 @@ export const sendOtpEmail = async (email, name, otp) => {
       to: email,
       subject: "Action Required: Your OTP for GDG Event Registration",
       html: `
-        <div style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #e0e0e0; border-radius: 10px; background-color: #ffffff;">
-          <div style="text-align: center; padding-bottom: 20px; border-bottom: 2px solid #f2f2f2;">
-            <h1 style="color: #4285F4; margin: 0;">GDG Event 2026</h1>
+        <div style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; max-width: 600px; margin: 0 auto; padding: 0; border: 1px solid #e0e0e0; border-radius: 12px; background-color: #ffffff; overflow: hidden; box-shadow: 0 8px 24px rgba(0,0,0,0.06);">
+          
+          <div style="background-color: #f8faff; text-align: center; border-bottom: 4px solid #4285F4; padding-top: 35px;">
+            <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTeT5WipoI_LHakY6xsGOShL3OiX9xyiwZXOw&s" alt="Event Logo" style="max-height: 80px; width: auto; margin: 0 auto; display: block;" />
+            <div style="padding: 20px 20px 25px 20px;">
+              <h1 style="color: #4285F4; margin: 0; font-size: 30px; font-weight: 800; letter-spacing: 0.5px;">Proximity 6.0 🚀</h1>
+            </div>
           </div>
-          <div style="padding: 20px 0;">
+
+          <div style="padding: 35px 25px;">
+            <div style="text-align: center; margin-bottom: 25px;">
+              <span style="display: inline-block; background-color: #e8f0fe; color: #1a73e8; padding: 8px 20px; border-radius: 50px; font-size: 16px; font-weight: bold; border: 1px solid #d2e3fc;">
+                Email Verification 🔐
+              </span>
+            </div>
+
             <p style="font-size: 16px; color: #333;">Hi <strong>${name}</strong>,</p>
-            <p style="font-size: 16px; color: #555;">Thank you for starting your registration. To proceed, please use the One-Time Password (OTP) below to verify your email address:</p>
+            <p style="font-size: 16px; color: #555; line-height: 1.6;">Thank you for registering for <strong>Proximity 6.0</strong>. To complete your registration, please verify your email address using the One-Time Password (OTP) below:</p>
             
-            <div style="text-align: center; margin: 30px 0;">
-              <span style="display: inline-block; font-size: 32px; font-weight: bold; letter-spacing: 8px; color: #0F9D58; background-color: #e6f4ea; padding: 15px 30px; border-radius: 8px;">
+            <div style="text-align: center; margin: 35px 0; padding: 25px; background-color: #f8faff; border-radius: 12px; border: 1px dashed #4285F4;">
+              <span style="display: inline-block; font-size: 36px; font-weight: 800; letter-spacing: 10px; color: #0F9D58; background-color: #ffffff; padding: 16px 36px; border-radius: 10px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); border: 1px solid #e6f4ea;">
                 ${otp}
               </span>
             </div>
             
-            <p style="font-size: 14px; color: #777;">This OTP is valid for a short duration. Please do not share this code with anyone.</p>
+            <p style="font-size: 14px; color: #777; text-align: center;">⏳ This OTP is valid for <strong>5 minutes</strong>. Please do not share this code with anyone.</p>
           </div>
-          <div style="text-align: center; padding-top: 20px; border-top: 2px solid #f2f2f2; font-size: 12px; color: #999;">
-            <p>If you didn't request this, please ignore this email.</p>
-            <p>&copy; ${new Date().getFullYear()} GDG Event Team. All rights reserved.</p>
+
+          <div style="background-color: #f8f9fa; text-align: center; padding: 24px; border-top: 1px solid #eeeeee; font-size: 13px; color: #888;">
+            <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTeT5WipoI_LHakY6xsGOShL3OiX9xyiwZXOw&s" alt="GDG Logo" style="max-height: 45px; width: auto; margin: 0 auto 12px auto; display: block;" />
+            <p style="margin: 0 0 10px 0;">Keep Building,<br><strong style="color: #555;">Team GDG On Campus AKGEC</strong></p>
+            <p style="margin: 0;">&copy; ${new Date().getFullYear()} GDG Event Team. All rights reserved.</p>
           </div>
+
         </div>
       `,
     };
@@ -147,12 +161,13 @@ export const sendRegisterationEmail = async (student) => {
             <div style="background-color: #f4fcf7; padding: 24px; border-radius: 10px; margin: 25px 0; border-left: 4px solid #0F9D58; border: 1px solid #ceead6;">
               <h3 style="color: #0d8a4d; margin-top: 0; font-size: 18px;">📞 Need Help? Contact Us</h3>
               <p style="color: #444; font-size: 15px; margin: 10px 0;"><strong>Naman Srivastava:</strong> 7275573139</p>
-              <p style="color: #444; font-size: 15px; margin: 0;"><strong>Trisha Singh:</strong> 9687979387</p>
+              <p style="color: #444; font-size: 15px; margin: 0;"><strong>Trisha Singh:</strong> 8081387855</p>
             </div>
             
           </div>
 
           <div style="background-color: #f8f9fa; text-align: center; padding: 24px; border-top: 1px solid #eeeeee; font-size: 13px; color: #888;">
+            <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTeT5WipoI_LHakY6xsGOShL3OiX9xyiwZXOw&s" alt="GDG Logo" style="max-height: 45px; width: auto; margin: 0 auto 12px auto; display: block;" />
             <p style="margin: 0 0 10px 0;">Keep Building,<br><strong style="color: #555;">Team GDG On Campus AKGEC</strong></p>
             <p style="margin: 0;">&copy; ${new Date().getFullYear()} GDG Event Team. All rights reserved.</p>
           </div>
@@ -248,12 +263,13 @@ This is a reminder for the upcoming event. We are excited to see you there!
             <div style="background-color: #f4fcf7; padding: 24px; border-radius: 10px; margin: 25px 0; border-left: 4px solid #0F9D58; border: 1px solid #ceead6;">
               <h3 style="color: #0d8a4d; margin-top: 0; font-size: 18px;">📞 Need Help? Contact Us</h3>
               <p style="color: #444; font-size: 15px; margin: 10px 0;"><strong>Naman Srivastava:</strong> 7275573139</p>
-              <p style="color: #444; font-size: 15px; margin: 0;"><strong>Trisha Singh:</strong> 9687979387</p>
+              <p style="color: #444; font-size: 15px; margin: 0;"><strong>Trisha Singh:</strong> 8081387855</p>
             </div>
             
           </div>
 
           <div style="background-color: #f8f9fa; text-align: center; padding: 24px; border-top: 1px solid #eeeeee; font-size: 13px; color: #888;">
+            <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTeT5WipoI_LHakY6xsGOShL3OiX9xyiwZXOw&s" alt="GDG Logo" style="max-height: 45px; width: auto; margin: 0 auto 12px auto; display: block;" />
             <p style="margin: 0 0 10px 0;">Keep Building,<br><strong style="color: #555;">Team GDG On Campus AKGEC</strong></p>
             <p style="margin: 0;">&copy; ${new Date().getFullYear()} GDG Event Team. All rights reserved.</p>
           </div>

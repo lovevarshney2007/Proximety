@@ -104,7 +104,7 @@ const registrationSchema = new mongoose.Schema(
     },
     githubId: {
       type: String,
-      required: [true, "GitHub ID is required"],
+      default: "",
     },
     hackerrankId: {
       type: String,

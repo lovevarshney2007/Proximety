@@ -33,8 +33,9 @@ const __dirname  = path.dirname(__filename);
 // Resolve from the project root's /assets directory.
 const ASSETS_DIR = path.resolve(__dirname, "..", "..", "assets");
 
+
 const PATHS = {
-  gdgLogo:   path.join(ASSETS_DIR, "logos",    "gdg-logo.png"),
+  gdgLogo:   path.join(ASSETS_DIR, "logos",    "gdg-logo-Photoroom_2.png"),
   spiderMan: path.join(ASSETS_DIR, "graphics", "spiderman.jpg"),
   spiderWeb: path.join(ASSETS_DIR, "graphics", "spiderweb.jpg"),
 };
