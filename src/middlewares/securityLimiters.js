@@ -137,7 +137,7 @@ const handleThrottledRateLimitViolation = (req, res, options, eventType, maxAtte
 // ===============================
 export const globalLimiter = rateLimit({
     windowMs: 15 * 60 * 1000,
-    max: 200, 
+    max: 500, 
     message: "Too many general requests from this IP, please try again later or switch to another network.",
     standardHeaders: true,
     legacyHeaders: false,
