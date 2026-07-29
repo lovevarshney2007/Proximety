@@ -1,7 +1,7 @@
 import express from "express";
 import { sendRegistrationOtp, verifyOtp, registerStudent } from "../controllers/registrationController.js";
 import { checkIpBlacklist, authLimiter, strictRegistrationLimiter as registerLimiter } from "../middlewares/securityLimiters.js";
-import { blockIpManually, unblockIp, markAttendance, getAllUsers, getAllBlockedIps, getStats, sendEventReminders, resendSingleReminder } from "../controllers/adminController.js";
+import { blockIpManually, unblockIp, markAttendance, getAllUsers, getAllBlockedIps, clearAllBlockedIps, getStats, sendEventReminders, resendSingleReminder } from "../controllers/adminController.js";
 import adminAuth from "../middlewares/adminAuth.js";
 const router = express.Router();
 
@@ -13,6 +13,7 @@ router.post("/admin/send-reminders", adminAuth, sendEventReminders);
 router.post("/admin/resend-reminder", adminAuth, resendSingleReminder);
 router.get("/admin/users", adminAuth, getAllUsers);
 router.get("/admin/blocked-ips", adminAuth, getAllBlockedIps);
+router.delete("/admin/clear-all-blocked-ips", adminAuth, clearAllBlockedIps);
 router.get("/admin/stats", adminAuth, getStats);
 
 

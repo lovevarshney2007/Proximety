@@ -4,7 +4,7 @@ import { AuditLog } from "../models/auditLogModel.js";
 import { SuspiciousActivity } from "../models/suspiciousActivityModel.js";
 import mongoose from "mongoose";
 import { sendReminderEmail } from "../utils/emailService.js";
-import { addIpToMemoryBlocklist, removeIpFromMemoryBlocklist } from "../middlewares/securityLimiters.js";
+import { addIpToMemoryBlocklist, removeIpFromMemoryBlocklist, clearAllMemoryBlocklists } from "../middlewares/securityLimiters.js";
 
 // Helper for delay
 const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
@@ -297,6 +297,33 @@ export const getAllBlockedIps = async (req, res, next) => {
       count: blockedIps.length,
       data: blockedIps,
       message: "All blocked IPs fetched successfully."
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+// Clear ALL blocked IPs (nuclear option for admin)
+export const clearAllBlockedIps = async (req, res, next) => {
+  try {
+    // 1. Clear in-memory caches immediately
+    clearAllMemoryBlocklists();
+
+    // 2. Delete all blocked IPs from DB
+    const blockedResult = await BlockedIp.deleteMany({});
+    
+    // 3. Clear suspicious activity logs
+    const suspiciousResult = await SuspiciousActivity.deleteMany({});
+
+    // 4. Audit log
+    await AuditLog.create({
+      actionType: 'ALL_IPS_CLEARED',
+      details: `Cleared ${blockedResult.deletedCount} blocked IPs and ${suspiciousResult.deletedCount} suspicious activity records`
+    });
+
+    return res.status(200).json({
+      success: true,
+      message: `Cleared ${blockedResult.deletedCount} blocked IP(s) and ${suspiciousResult.deletedCount} suspicious activity record(s). In-memory caches also flushed.`
     });
   } catch (error) {
     next(error);

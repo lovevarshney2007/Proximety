@@ -43,6 +43,13 @@ export const removeIpFromMemoryBlocklist = (ip) => {
   }
 };
 
+// Clear ALL in-memory caches (used by admin clear-all endpoint)
+export const clearAllMemoryBlocklists = () => {
+  blockedIpsCache.clear();
+  cleanIpsCache.clear();
+  violationCounts.clear();
+};
+
 // ===============================
 //  IP BLACKLIST CHECKER
 // ===============================
