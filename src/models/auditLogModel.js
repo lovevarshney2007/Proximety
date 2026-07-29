@@ -4,7 +4,7 @@ const auditLogSchema = new mongoose.Schema({
     actionType: {
         type: String,
         required: true,
-        enum: ['IP_BLOCKED', 'IP_UNBLOCKED', 'ATTENDANCE_MARKED', 'REMINDERS_SENT', 'SINGLE_REMINDER_SENT']
+        enum: ['IP_BLOCKED', 'IP_UNBLOCKED', 'ALL_IPS_CLEARED', 'ATTENDANCE_MARKED', 'REMINDERS_SENT', 'SINGLE_REMINDER_SENT']
     },
     targetIp: {
         type: String,
