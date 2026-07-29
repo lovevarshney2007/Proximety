@@ -187,6 +187,7 @@ export const sendRegisterationEmail = async (student) => {
     console.log(`✅ Registration Success Email (with QR ticket) sent to ${student.email}`);
   } catch (error) {
     console.error("❌ Error sending registration email:", error);
+    throw error;
   }
 };
 

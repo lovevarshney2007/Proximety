@@ -284,26 +284,28 @@ export const registerStudent = async (req, res, next) => {
     /* ===== CREATE ===== */
 
     value.email = email;
-
     value.isVerified = true;
 
-    const student =
-      await Registration.create(value);
+    // Create the Mongoose document (this synchronously generates an _id for the QR code)
+    const student = new Registration(value);
 
+    // 1. Send the email first
+    try {
+      await sendRegisterationEmail(student);
+    } catch (emailError) {
+      return res.status(500).json({
+        success: false,
+        message: "Your registration was not completed. Please try again .",
+      });
+    }
 
-    // await Otp.findByIdAndDelete(
-    //   otpRecord._id
-    // );
-
-    // await sendRegisterationEmail(student);
+    // 2. Only if the email was sent successfully, save to database
+    await student.save();
 
     // Clean up verified state in Redis after successful registration in DB
     if (!shouldBypassOtp) {
       await clearVerification(email);
     }
-
-    await sendRegisterationEmail(student);
-
 
     res.status(201).json({
       success: true,
