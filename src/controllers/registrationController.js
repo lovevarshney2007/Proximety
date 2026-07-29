@@ -7,7 +7,7 @@ import { sendOtpEmail, sendRegisterationEmail } from "../utils/emailService.js";
 import { registrationValidation, sendOtpValidation } from "../validations/registrationValidation.js";
 
 
-const MAX_REGISTRATIONS = 150;
+
 const OTP_COOLDOWN_SECONDS = 60;
 const MAX_OTP_ATTEMPTS = 5;
 
@@ -18,10 +18,7 @@ const isOtpBypassEmail = (email = "") =>
   process.env.OTP_BYPASS_EMAIL &&
   normalizeEmail(email) === normalizeEmail(process.env.OTP_BYPASS_EMAIL);
 
-const isRegistrationFull = async () => {
-  const count = await Registration.countDocuments({ isVerified: true });
-  return count >= MAX_REGISTRATIONS;
-};
+
 
 
 
@@ -84,12 +81,7 @@ export const sendRegistrationOtp = async (req, res, next) => {
 
   try {
 
-    if (await isRegistrationFull()) {
-      return res.status(403).json({
-        success: false,
-        message: "Registrations are full",
-      });
-    }
+
 
     const value = await sendOtpValidation.validateAsync(req.body, {
       abortEarly: true,
@@ -273,12 +265,7 @@ export const registerStudent = async (req, res, next) => {
       });
     }
 
-    if (await isRegistrationFull()) {
-      return res.status(403).json({
-        success: false,
-        message: "Registrations are full",
-      });
-    }
+
 
 
     /* ===== CREATE ===== */
