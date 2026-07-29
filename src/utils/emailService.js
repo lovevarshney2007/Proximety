@@ -108,7 +108,7 @@ export const sendRegisterationEmail = async (student) => {
             <div style="background-color: #f4f8ff; padding: 24px; border-radius: 10px; margin: 25px 0; border-left: 4px solid #4285F4; border: 1px solid #e1e9fa;">
               <h3 style="color: #4285F4; margin-top: 0; font-size: 18px;">📍 Event Details</h3>
               <p style="margin: 8px 0; color: #333; font-size: 15px;"><strong>Date:</strong> 30th July, 2026</p>
-              <p style="margin: 8px 0; color: #333; font-size: 15px;"><strong>Venue:</strong> CS/IT Block</p>
+              <p style="margin: 8px 0; color: #333; font-size: 15px;"><strong>Venue:</strong> CS/IT Block (3rd Floor)</p>
               <div style="margin-top: 15px; padding-left: 14px; border-left: 2px solid #aecbfa;">
                 <p style="margin: 6px 0; color: #555; font-size: 14px;"><strong>Time:</strong> 4:00 PM – 7:30 PM</p>
               </div>
@@ -229,7 +229,7 @@ This is a reminder for the upcoming event. We are excited to see you there!
             <div style="background-color: #f4f8ff; padding: 24px; border-radius: 10px; margin: 25px 0; border-left: 4px solid #4285F4; border: 1px solid #e1e9fa;">
               <h3 style="color: #4285F4; margin-top: 0; font-size: 18px;">📍 Event Details</h3>
               <p style="margin: 8px 0; color: #333; font-size: 15px;"><strong>Date:</strong> 30th July, 2026</p>
-              <p style="margin: 8px 0; color: #333; font-size: 15px;"><strong>Venue:</strong> CS/IT Block</p>
+              <p style="margin: 8px 0; color: #333; font-size: 15px;"><strong>Venue:</strong> CS/IT Block (3rd Floor)</p>
               <div style="margin-top: 15px; padding-left: 14px; border-left: 2px solid #aecbfa;">
                 <p style="margin: 6px 0; color: #555; font-size: 14px;"><strong>Time:</strong> 4:00 PM – 7:30 PM</p>
               </div>
