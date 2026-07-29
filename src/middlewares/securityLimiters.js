@@ -137,7 +137,7 @@ const handleThrottledRateLimitViolation = (req, res, options, eventType, maxAtte
 // ===============================
 export const globalLimiter = rateLimit({
     windowMs: 15 * 60 * 1000,
-    max: 100, 
+    max: 200, 
     message: "Too many general requests from this IP, please try again later or switch to another network.",
     standardHeaders: true,
     legacyHeaders: false,
@@ -148,7 +148,7 @@ export const globalLimiter = rateLimit({
 // ===============================
 export const authLimiter = rateLimit({
     windowMs: 30 * 60 * 1000,
-    max: 10, 
+    max: 50, 
     message: "Too many attempts. Please try again later or switch to another network.",
     standardHeaders: true,
     legacyHeaders: false,
@@ -158,8 +158,8 @@ export const authLimiter = rateLimit({
             res, 
             options, 
             'AUTH_RATE_LIMIT_BLOCK', 
-            10, 
-            "Auto-blocked: Exceeded 10+ auth rate limit violations"
+            50, 
+            "Auto-blocked: Exceeded 50+ auth rate limit violations"
         );
     }
 });
@@ -169,7 +169,7 @@ export const authLimiter = rateLimit({
 // ===============================
 export const strictRegistrationLimiter = rateLimit({
     windowMs: 30 * 60 * 1000,
-    max: 10, 
+    max: 50, 
     message: "Too many registration attempts. Please try again later or switch to another network.",
     standardHeaders: true,
     legacyHeaders: false,
@@ -179,8 +179,8 @@ export const strictRegistrationLimiter = rateLimit({
             res, 
             options, 
             'RATE_LIMIT_BLOCK', 
-            50, 
-            "Auto-blocked: Exceeded 50+ registration spam attempts"
+            150, 
+            "Auto-blocked: Exceeded 150+ registration spam attempts"
         );
     }
 });
@@ -190,7 +190,7 @@ export const strictRegistrationLimiter = rateLimit({
 // ===============================
 export const chatbotLimiter = rateLimit({
     windowMs: 5 * 60 * 1000,
-    max: 20, 
+    max: 100, 
     message: "You are chatting too fast! Please wait a moment.",
     standardHeaders: true,
     legacyHeaders: false,

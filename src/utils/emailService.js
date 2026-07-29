@@ -110,7 +110,7 @@ export const sendRegisterationEmail = async (student) => {
               <p style="margin: 8px 0; color: #333; font-size: 15px;"><strong>Date:</strong> 30th July, 2026</p>
               <p style="margin: 8px 0; color: #333; font-size: 15px;"><strong>Venue:</strong> CS/IT Block</p>
               <div style="margin-top: 15px; padding-left: 14px; border-left: 2px solid #aecbfa;">
-                <p style="margin: 6px 0; color: #555; font-size: 14px;"><strong>Time:</strong> 4:00 PM – 7:00 PM</p>
+                <p style="margin: 6px 0; color: #555; font-size: 14px;"><strong>Time:</strong> 4:00 PM – 7:30 PM</p>
               </div>
             </div>
 
@@ -230,7 +230,7 @@ This is a reminder for the upcoming event. We are excited to see you there!
               <p style="margin: 8px 0; color: #333; font-size: 15px;"><strong>Date:</strong> 30th July, 2026</p>
               <p style="margin: 8px 0; color: #333; font-size: 15px;"><strong>Venue:</strong> CS/IT Block</p>
               <div style="margin-top: 15px; padding-left: 14px; border-left: 2px solid #aecbfa;">
-                <p style="margin: 6px 0; color: #555; font-size: 14px;"><strong>Time:</strong> 4:00 PM – 7:00 PM</p>
+                <p style="margin: 6px 0; color: #555; font-size: 14px;"><strong>Time:</strong> 4:00 PM – 7:30 PM</p>
               </div>
             </div>
 
