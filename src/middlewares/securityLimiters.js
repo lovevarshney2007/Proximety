@@ -155,7 +155,7 @@ export const globalLimiter = rateLimit({
 // ===============================
 export const authLimiter = rateLimit({
     windowMs: 30 * 60 * 1000,
-    max: 50, 
+    max: 80, 
     message: "Too many attempts. Please try again later or switch to another network.",
     standardHeaders: true,
     legacyHeaders: false,
@@ -176,7 +176,7 @@ export const authLimiter = rateLimit({
 // ===============================
 export const strictRegistrationLimiter = rateLimit({
     windowMs: 30 * 60 * 1000,
-    max: 50, 
+    max: 100, 
     message: "Too many registration attempts. Please try again later or switch to another network.",
     standardHeaders: true,
     legacyHeaders: false,
