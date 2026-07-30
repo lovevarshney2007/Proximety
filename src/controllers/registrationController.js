@@ -80,8 +80,10 @@ const verifyCaptcha = async (captchaToken) => {
 export const sendRegistrationOtp = async (req, res, next) => {
 
   try {
-
-
+    return res.status(403).json({
+      success: false,
+      message: "Registrations are now closed.",
+    });
 
     const value = await sendOtpValidation.validateAsync(req.body, {
       abortEarly: true,
@@ -225,6 +227,10 @@ export const verifyOtp = async (req, res, next) => {
 export const registerStudent = async (req, res, next) => {
 
   try {
+    return res.status(403).json({
+      success: false,
+      message: "Registrations are now closed.",
+    });
 
     const formData = req.body;
 
