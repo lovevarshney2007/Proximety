@@ -88,7 +88,17 @@ export const sendRegistrationOtp = async (req, res, next) => {
       stripUnknown: true,
     });
 
-    let { email, name, studentNumber, captchaToken } = value;
+    let { email, name, studentNumber, captchaToken, gender, residence } = value;
+
+    if (gender === "Female" && residence === "Hosteller") {
+      const deadline = new Date("2026-07-30T12:00:00+05:30");
+      if (new Date() >= deadline) {
+        return res.status(403).json({
+          success: false,
+          message: "Registration for Girls Hosteller is closed.",
+        });
+      }
+    }
 
     const captchaStatus = await verifyCaptcha(captchaToken);
 
@@ -232,6 +242,16 @@ export const registerStudent = async (req, res, next) => {
     const email =
       // value.email.trim().toLowerCase();
       normalizeEmail(value.email);
+
+    if (value.gender === "Female" && value.residence === "Hosteller") {
+      const deadline = new Date("2026-07-30T12:00:00+05:30");
+      if (new Date() >= deadline) {
+        return res.status(403).json({
+          success: false,
+          message: "Registration for Girls Hosteller is closed.",
+        });
+      }
+    }
 
     const shouldBypassOtp = isOtpBypassEmail(email);
 
