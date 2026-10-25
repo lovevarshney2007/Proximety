@@ -60,22 +60,24 @@ async function runLiveTests() {
     process.exit(1);
   }
 
-  // Step 3: Fetch OTP from Upstash Redis
+  // Step 3: Fetch OTP from Database
   let otp = null;
-  const redis = new Redis(REDIS_URL);
+  const mongoose = (await import("mongoose")).default;
   try {
-    process.stdout.write("3️⃣  Retrieving generated OTP from Redis ... ");
-    const normalizedEmail = studentData.email.trim().toLowerCase();
-    const rawData = await redis.get(`otp_data:${normalizedEmail}`);
-    if (!rawData) {
-      throw new Error(`No OTP found in Redis for ${normalizedEmail}`);
+    process.stdout.write("3️⃣  Retrieving generated OTP from database ... ");
+    if (mongoose.connection.readyState === 0) {
+      await mongoose.connect(process.env.MONGO_URI);
     }
-    const parsed = JSON.parse(rawData);
-    otp = parsed.otp;
+    const { Otp } = await import("./src/models/otpModel.js");
+    const normalizedEmail = studentData.email.trim().toLowerCase();
+    const record = await Otp.findOne({ email: normalizedEmail });
+    if (!record || !record.otp) {
+      throw new Error(`No OTP found in database for ${normalizedEmail}`);
+    }
+    otp = record.otp;
     console.log(`✅ Retrieved OTP: ${otp}`);
   } catch (err) {
     console.log(`❌ Failed to retrieve OTP: ${err.message}`);
-    await redis.quit();
     process.exit(1);
   }
 
@@ -89,10 +91,7 @@ async function runLiveTests() {
     console.log(`✅ [${verifyRes.status}] Response: ${JSON.stringify(verifyRes.data)}`);
   } catch (err) {
     console.log(`❌ Failed: [${err.response?.status}] ${JSON.stringify(err.response?.data || err.message)}`);
-    await redis.quit();
     process.exit(1);
-  } finally {
-    await redis.quit();
   }
 
   // Step 5: Register Student
@@ -134,6 +133,12 @@ async function runLiveTests() {
   } catch (err) {
     console.log(`❌ Failed: [${err.response?.status}] ${JSON.stringify(err.response?.data || err.message)}`);
   }
+
+  try {
+    if (mongoose.connection.readyState !== 0) {
+      await mongoose.disconnect();
+    }
+  } catch {}
 
   console.log("\n==================================================");
   console.log("🎉 All routes tested and student registered successfully!");

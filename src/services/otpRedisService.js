@@ -1,116 +1,76 @@
-import getRedisClient from "../config/redis.js";
-
-const OTP_TTL_SECONDS = 900;       // 15 minutes expiry for OTP
-const COOLDOWN_TTL_SECONDS = 60;   // 60 seconds cooldown between OTP requests
-const VERIFIED_TTL_SECONDS = 1800; // 30 minutes expiry for verified state before registration
+import { Otp } from "../models/otpModel.js";
 
 const normalizeEmail = (email = "") => email.trim().toLowerCase();
 
 export const checkCooldown = async (email) => {
-  const redis = getRedisClient();
-  const key = `otp_cooldown:${normalizeEmail(email)}`;
-  const ttl = await redis.ttl(key);
-  if (ttl && ttl > 0) {
-    return { isOnCooldown: true, remainingSeconds: ttl };
+  const normalized = normalizeEmail(email);
+  const record = await Otp.findOne({ email: normalized });
+  if (record && record.cooldownUntil && record.cooldownUntil > new Date()) {
+    const remainingSeconds = Math.ceil((record.cooldownUntil.getTime() - Date.now()) / 1000);
+    return { isOnCooldown: true, remainingSeconds };
   }
   return { isOnCooldown: false, remainingSeconds: 0 };
 };
 
 export const storeOtp = async (email, studentNumber, otp) => {
-  const redis = getRedisClient();
   const normalized = normalizeEmail(email);
-  
-  const dataKey = `otp_data:${normalized}`;
-  const cooldownKey = `otp_cooldown:${normalized}`;
-  const attemptsKey = `otp_attempts:${normalized}`;
+  const now = new Date();
+  const cooldownUntil = new Date(now.getTime() + 60 * 1000);
 
-  const payload = JSON.stringify({
-    otp: String(otp),
-    studentNumber,
-    createdAt: Date.now(),
-  });
-
-  // 1. Store OTP payload with 15 mins expiry (EX 900)
-  await redis.set(dataKey, payload, "EX", OTP_TTL_SECONDS);
-
-  // 2. Set cooldown lock for 60 seconds (EX 60)
-  await redis.set(cooldownKey, "locked", "EX", COOLDOWN_TTL_SECONDS);
-
-  // 3. Reset failed attempts counter
-  await redis.del(attemptsKey);
+  await Otp.findOneAndUpdate(
+    { email: normalized },
+    {
+      studentNumber,
+      otp: String(otp),
+      attempts: 0,
+      isVerified: false,
+      createdAt: now,
+      cooldownUntil,
+    },
+    { upsert: true, new: true, setDefaultsOnInsert: true }
+  );
 };
 
 export const verifyOtpInRedis = async (email, otp, maxAttempts = 5) => {
-  const redis = getRedisClient();
   const normalized = normalizeEmail(email);
-  
-  const dataKey = `otp_data:${normalized}`;
-  const attemptsKey = `otp_attempts:${normalized}`;
-  const verifiedKey = `otp_verified:${normalized}`;
+  const record = await Otp.findOne({ email: normalized });
 
-  // 1. Check if OTP exists in Redis
-  const rawData = await redis.get(dataKey);
-  if (!rawData) {
+  if (!record) {
     return { success: false, message: "OTP expired or invalid" };
   }
 
-  // 2. Increment attempt counter atomically (INCR)
-  const attempts = await redis.incr(attemptsKey);
-  
-  // Set TTL on attemptsKey if it's new so it doesn't leak memory
-  if (attempts === 1) {
-    await redis.set(attemptsKey, String(attempts), "EX", OTP_TTL_SECONDS);
-  }
+  record.attempts = (record.attempts || 0) + 1;
 
-  // 3. Check if brute-force threshold exceeded
-  if (attempts >= maxAttempts) {
-    await redis.del(dataKey);
-    await redis.del(attemptsKey);
+  if (record.attempts >= maxAttempts) {
+    await Otp.deleteOne({ email: normalized });
     return {
       success: false,
       message: "Too many failed attempts. Please request a new OTP.",
     };
   }
 
-  // 4. Validate OTP match
-  let parsedData;
-  try {
-    parsedData = JSON.parse(rawData);
-  } catch (err) {
-    await redis.del(dataKey);
-    return { success: false, message: "OTP expired or invalid" };
-  }
-
-  if (parsedData.otp !== String(otp)) {
+  if (record.otp !== String(otp)) {
+    await record.save();
     return {
       success: false,
       message: "OTP expired or invalid",
     };
   }
 
-  // 5. OTP matches! Mark as verified in Redis with 30 mins TTL
-  await redis.set(verifiedKey, "true", "EX", VERIFIED_TTL_SECONDS);
-
-  // 6. Clean up temporary OTP and attempts keys
-  await redis.del(dataKey);
-  await redis.del(attemptsKey);
-  await redis.del(`otp_cooldown:${normalized}`);
+  // OTP matches! Mark as verified
+  record.isVerified = true;
+  await record.save();
 
   return { success: true, message: "OTP verified" };
 };
 
 export const isOtpVerified = async (email) => {
-  const redis = getRedisClient();
-  const key = `otp_verified:${normalizeEmail(email)}`;
-  const val = await redis.exists(key);
-  return val === 1;
+  const normalized = normalizeEmail(email);
+  const record = await Otp.findOne({ email: normalized, isVerified: true });
+  return Boolean(record);
 };
 
 export const clearVerification = async (email) => {
-  const redis = getRedisClient();
   const normalized = normalizeEmail(email);
-  await redis.del(`otp_verified:${normalized}`);
-  await redis.del(`otp_data:${normalized}`);
-  await redis.del(`otp_attempts:${normalized}`);
-  await redis.del(`otp_cooldown:${normalized}`);
+  await Otp.deleteOne({ email: normalized });
 };
