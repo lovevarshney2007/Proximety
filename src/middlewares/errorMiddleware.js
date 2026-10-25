@@ -44,8 +44,8 @@ const errorMiddleware = (err, req, res, next) => {
     message: message,
   };
 
-  // Only expose debug info in development
-  if (process.env.NODE_ENV !== "production") {
+  // Expose debug info in development or for admin requests
+  if (process.env.NODE_ENV !== "production" || (process.env.ADMIN_API_KEY && req.headers["x-api-key"] === process.env.ADMIN_API_KEY)) {
     response.debugError = err.message;
     response.debugStack = err.stack;
   }
