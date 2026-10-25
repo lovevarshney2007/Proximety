@@ -108,9 +108,9 @@ async function removeWhiteBackground(filePath, threshold = 228) {
  * They are injected into every ticket at render time.
  */
 const EVENT_INFO = {
-  venue: "CSIT Block (3rd Floor)",
-  date:  "30 July 2026 (Thursday)",
-  time:  "4:00 PM – 7:30 PM",
+  venue: "CSIT Seminar Hall",
+  date:  "30 October 2026 (Friday)",
+  time:  "4:00 PM – 8:00 PM",
 };
 
 /**

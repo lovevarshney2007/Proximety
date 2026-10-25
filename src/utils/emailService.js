@@ -24,14 +24,14 @@ export const sendOtpEmail = async (email, name, otp) => {
     const mailOptions = {
       from: `"GDG Event Team" <${process.env.EMAIL_USER || process.env.EMAIL_USERNAME}>`,
       to: email,
-      subject: "Action Required: Your OTP for GDG Event Registration",
+      subject: "Action Required: Your OTP for Byte Talks 2026 Registration",
       html: `
         <div style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; max-width: 600px; margin: 0 auto; padding: 0; border: 1px solid #e0e0e0; border-radius: 12px; background-color: #ffffff; overflow: hidden; box-shadow: 0 8px 24px rgba(0,0,0,0.06);">
           
           <div style="background-color: #f8faff; text-align: center; border-bottom: 4px solid #4285F4; padding-top: 35px;">
             <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTeT5WipoI_LHakY6xsGOShL3OiX9xyiwZXOw&s" alt="Event Logo" style="max-height: 80px; width: auto; margin: 0 auto; display: block;" />
             <div style="padding: 20px 20px 25px 20px;">
-              <h1 style="color: #4285F4; margin: 0; font-size: 30px; font-weight: 800; letter-spacing: 0.5px;">Proximity 6.0 🚀</h1>
+              <h1 style="color: #4285F4; margin: 0; font-size: 30px; font-weight: 800; letter-spacing: 0.5px;">Byte Talks 2026 🚀</h1>
             </div>
           </div>
 
@@ -43,7 +43,7 @@ export const sendOtpEmail = async (email, name, otp) => {
             </div>
 
             <p style="font-size: 16px; color: #333;">Hi <strong>${name}</strong>,</p>
-            <p style="font-size: 16px; color: #555; line-height: 1.6;">Thank you for registering for <strong>Proximity 6.0</strong>. To complete your registration, please verify your email address using the One-Time Password (OTP) below:</p>
+            <p style="font-size: 16px; color: #555; line-height: 1.6;">Thank you for registering for <strong>Byte Talks 2026</strong>. To complete your registration, please verify your email address using the One-Time Password (OTP) below:</p>
             
             <div style="text-align: center; margin: 35px 0; padding: 25px; background-color: #f8faff; border-radius: 12px; border: 1px dashed #4285F4;">
               <span style="display: inline-block; font-size: 36px; font-weight: 800; letter-spacing: 10px; color: #0F9D58; background-color: #ffffff; padding: 16px 36px; border-radius: 10px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); border: 1px solid #e6f4ea;">
@@ -83,14 +83,14 @@ export const sendRegisterationEmail = async (student) => {
     const mailOptions = {
       from: `"GDG Event Team" <${process.env.EMAIL_USER || process.env.EMAIL_USERNAME}>`,
       to: student.email,
-      subject: "🎉 Registration Confirmed! Your Entry Pass Inside - GDG Event",
+      subject: "🎉 Registration Confirmed! Your Entry Pass Inside - Byte Talks 2026",
       html: `
         <div style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; max-width: 600px; margin: 0 auto; padding: 0; border: 1px solid #e0e0e0; border-radius: 12px; background-color: #ffffff; overflow: hidden; box-shadow: 0 8px 24px rgba(0,0,0,0.06);">
           
           <div style="background-color: #f8faff; text-align: center; border-bottom: 4px solid #4285F4; padding-top: 35px;">
             <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTeT5WipoI_LHakY6xsGOShL3OiX9xyiwZXOw&s" alt="Event Logo" style="max-height: 80px; width: auto; margin: 0 auto; display: block;" />
             <div style="padding: 20px 20px 25px 20px;">
-              <h1 style="color: #4285F4; margin: 0; font-size: 30px; font-weight: 800; letter-spacing: 0.5px;">Proximity 6.0 🚀</h1>
+              <h1 style="color: #4285F4; margin: 0; font-size: 30px; font-weight: 800; letter-spacing: 0.5px;">Byte Talks 2026 🚀</h1>
             </div>
           </div>
 
@@ -103,14 +103,14 @@ export const sendRegisterationEmail = async (student) => {
             </div>
 
             <p style="font-size: 16px; color: #333;">Hi <strong>${student.name || "Participant"}</strong>,</p>
-            <p style="font-size: 16px; color: #555; line-height: 1.6;">Congratulations! Your registration for the upcoming GDG Event has been successfully completed. We are thrilled to have you onboard.</p>
+            <p style="font-size: 16px; color: #555; line-height: 1.6;">Congratulations! Your registration for <strong>Byte Talks 2026</strong> has been successfully completed. We are thrilled to have you onboard.</p>
 
             <div style="background-color: #f4f8ff; padding: 24px; border-radius: 10px; margin: 25px 0; border-left: 4px solid #4285F4; border: 1px solid #e1e9fa;">
               <h3 style="color: #4285F4; margin-top: 0; font-size: 18px;">📍 Event Details</h3>
-              <p style="margin: 8px 0; color: #333; font-size: 15px;"><strong>Date:</strong> 30th July, 2026</p>
-              <p style="margin: 8px 0; color: #333; font-size: 15px;"><strong>Venue:</strong> CS/IT Block (3rd Floor)</p>
+              <p style="margin: 8px 0; color: #333; font-size: 15px;"><strong>Date:</strong> 30th October, 2026</p>
+              <p style="margin: 8px 0; color: #333; font-size: 15px;"><strong>Venue:</strong> CSIT Seminar Hall</p>
               <div style="margin-top: 15px; padding-left: 14px; border-left: 2px solid #aecbfa;">
-                <p style="margin: 6px 0; color: #555; font-size: 14px;"><strong>Time:</strong> 4:00 PM – 7:30 PM</p>
+                <p style="margin: 6px 0; color: #555; font-size: 14px;"><strong>Time:</strong> 4:00 PM – 8:00 PM</p>
               </div>
             </div>
 
@@ -176,7 +176,7 @@ export const sendRegisterationEmail = async (student) => {
       `,
       attachments: [
         {
-          filename: `GDG-Ticket-${student.studentNumber || "2026"}.png`,
+          filename: `ByteTalks-Ticket-${student.studentNumber || "2026"}.png`,
           path: passDataUri,
           cid: "gdg-ticket-pass",
         },
@@ -202,14 +202,14 @@ export const sendReminderEmail = async (student) => {
     const mailOptions = {
       from: `"GDG Event Team" <${process.env.EMAIL_USER || process.env.EMAIL_USERNAME}>`,
       to: student.email,
-      subject: "📢 Important: Event Reminder for Proximity 6.0 - GDG Event",
+      subject: "📢 Important: Event Reminder for Byte Talks 2026 - GDG Event",
       html: `
         <div style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; max-width: 600px; margin: 0 auto; padding: 0; border: 1px solid #e0e0e0; border-radius: 12px; background-color: #ffffff; overflow: hidden; box-shadow: 0 8px 24px rgba(0,0,0,0.06);">
           
           <div style="background-color: #f8faff; text-align: center; border-bottom: 4px solid #4285F4; padding-top: 35px;">
             <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTeT5WipoI_LHakY6xsGOShL3OiX9xyiwZXOw&s" alt="Event Logo" style="max-height: 80px; width: auto; margin: 0 auto; display: block;" />
             <div style="padding: 20px 20px 25px 20px;">
-              <h1 style="color: #4285F4; margin: 0; font-size: 30px; font-weight: 800; letter-spacing: 0.5px;">Reminder for Proximity 6.0 🚀</h1>
+              <h1 style="color: #4285F4; margin: 0; font-size: 30px; font-weight: 800; letter-spacing: 0.5px;">Reminder for Byte Talks 2026 🚀</h1>
             </div>
           </div>
 
@@ -228,10 +228,10 @@ This is a reminder for the upcoming event. We are excited to see you there!
 
             <div style="background-color: #f4f8ff; padding: 24px; border-radius: 10px; margin: 25px 0; border-left: 4px solid #4285F4; border: 1px solid #e1e9fa;">
               <h3 style="color: #4285F4; margin-top: 0; font-size: 18px;">📍 Event Details</h3>
-              <p style="margin: 8px 0; color: #333; font-size: 15px;"><strong>Date:</strong> 30th July, 2026</p>
-              <p style="margin: 8px 0; color: #333; font-size: 15px;"><strong>Venue:</strong> CS/IT Block (3rd Floor)</p>
+              <p style="margin: 8px 0; color: #333; font-size: 15px;"><strong>Date:</strong> 30th October, 2026</p>
+              <p style="margin: 8px 0; color: #333; font-size: 15px;"><strong>Venue:</strong> CSIT Seminar Hall</p>
               <div style="margin-top: 15px; padding-left: 14px; border-left: 2px solid #aecbfa;">
-                <p style="margin: 6px 0; color: #555; font-size: 14px;"><strong>Time:</strong> 4:00 PM – 7:30 PM</p>
+                <p style="margin: 6px 0; color: #555; font-size: 14px;"><strong>Time:</strong> 4:00 PM – 8:00 PM</p>
               </div>
             </div>
 
@@ -279,7 +279,7 @@ This is a reminder for the upcoming event. We are excited to see you there!
       `,
       attachments: [
         {
-          filename: `GDG-Ticket-${student.studentNumber || "2026"}.png`,
+          filename: `ByteTalks-Ticket-${student.studentNumber || "2026"}.png`,
           path: passDataUri,
           cid: "gdg-ticket-pass",
         },

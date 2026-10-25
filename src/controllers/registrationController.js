@@ -80,11 +80,6 @@ const verifyCaptcha = async (captchaToken) => {
 export const sendRegistrationOtp = async (req, res, next) => {
 
   try {
-    return res.status(403).json({
-      success: false,
-      message: "Registrations are now closed.",
-    });
-
     const value = await sendOtpValidation.validateAsync(req.body, {
       abortEarly: true,
       stripUnknown: true,
@@ -93,7 +88,7 @@ export const sendRegistrationOtp = async (req, res, next) => {
     let { email, name, studentNumber, captchaToken, gender, residence } = value;
 
     if (gender === "Female" && residence === "Hosteller") {
-      const deadline = new Date("2026-07-30T12:00:00+05:30");
+      const deadline = new Date("2026-10-30T16:00:00+05:30");
       if (new Date() >= deadline) {
         return res.status(403).json({
           success: false,
@@ -227,11 +222,6 @@ export const verifyOtp = async (req, res, next) => {
 export const registerStudent = async (req, res, next) => {
 
   try {
-    return res.status(403).json({
-      success: false,
-      message: "Registrations are now closed.",
-    });
-
     const formData = req.body;
 
     /* ===== VALIDATION ===== */
@@ -250,7 +240,7 @@ export const registerStudent = async (req, res, next) => {
       normalizeEmail(value.email);
 
     if (value.gender === "Female" && value.residence === "Hosteller") {
-      const deadline = new Date("2026-07-30T12:00:00+05:30");
+      const deadline = new Date("2026-10-30T16:00:00+05:30");
       if (new Date() >= deadline) {
         return res.status(403).json({
           success: false,
