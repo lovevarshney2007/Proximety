@@ -17,11 +17,10 @@ const registrationSchema = new mongoose.Schema(
 
     studentNumber: {
       type: String,
-      required: [true, "Studnet Id is required"],
+      required: [true, "Student Id is required"],
       match: [
-        // /^24[0-9]{5,6}$/,
-        /^25[0-9]{5,6}$/,
-        "Student ID must be start with 25 and be 7 or 8 digits",
+        /^2[3-6][0-9]{5,6}$/,
+        "Student ID must start with 23–26 and be 7 or 8 digits",
       ],
       unique: true,
     },
