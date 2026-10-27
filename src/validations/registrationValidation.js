@@ -14,10 +14,10 @@ const registrationValidation = Joi.object({
     }),
 
   studentNumber: Joi.string()
-    .pattern(/^2[3-6][0-9]{5,6}$/)
+    .pattern(/^2[5-6][0-9]{5,6}$/)
     .required()
     .messages({
-      "string.pattern.base": "Student ID must be 7–8 digits long and start with 23–26",
+      "string.pattern.base": "Student ID must be 7–8 digits long and start with 25 or 26",
       "string.empty": "Student ID is required",
     }),
 

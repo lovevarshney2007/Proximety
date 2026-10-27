@@ -12,8 +12,58 @@ const transporter = nodemailer.createTransport({
   },
 });
 
+// ─── Byte Talks Design Tokens ─────────────────────────────────────────────────
+const BT_BG       = "#0d1117";
+const BT_CARD     = "#161b22";
+const BT_GREEN    = "#00c853";
+const BT_GREEN_DK = "#009624";
+const BT_BORDER   = "#21262d";
+const BT_TEXT     = "#e6edf3";
+const BT_MUTED    = "#8b949e";
+
+// ─── Shared header HTML ───────────────────────────────────────────────────────
+const emailHeader = () => `
+  <div style="background-color:${BT_BG}; text-align:center; padding:40px 20px 30px; border-bottom:3px solid ${BT_GREEN};">
+    <table role="presentation" cellpadding="0" cellspacing="0" style="margin:0 auto;">
+      <tr>
+        <td style="padding-right:14px; vertical-align:middle;">
+          <svg width="44" height="44" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <rect width="24" height="24" rx="12" fill="${BT_GREEN}" fill-opacity="0.15"/>
+            <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3Z" fill="${BT_GREEN}"/>
+            <path d="M19 10v2a7 7 0 0 1-14 0v-2" stroke="${BT_GREEN}" stroke-width="1.8" stroke-linecap="round"/>
+            <line x1="12" y1="19" x2="12" y2="23" stroke="${BT_GREEN}" stroke-width="1.8" stroke-linecap="round"/>
+            <line x1="8" y1="23" x2="16" y2="23" stroke="${BT_GREEN}" stroke-width="1.8" stroke-linecap="round"/>
+          </svg>
+        </td>
+        <td style="vertical-align:middle; text-align:left;">
+          <div style="font-family:'Arial Black',Arial,sans-serif; font-size:32px; font-weight:900; color:#ffffff; letter-spacing:2px; text-transform:uppercase; line-height:1;">BYTE</div>
+          <div style="font-family:'Arial Black',Arial,sans-serif; font-size:32px; font-weight:900; color:${BT_GREEN}; letter-spacing:2px; text-transform:uppercase; line-height:1;">TALKS</div>
+        </td>
+      </tr>
+    </table>
+    <p style="margin:14px 0 0 0; font-family:Arial,sans-serif; font-size:11px; font-weight:700; letter-spacing:4px; text-transform:uppercase; color:${BT_MUTED};">ALUMNI EDITION &nbsp;·&nbsp; 30 OCT &nbsp;·&nbsp; CSIT SEMINAR HALL</p>
+  </div>`;
+
+// ─── Shared footer HTML ───────────────────────────────────────────────────────
+const emailFooter = () => `
+  <div style="background-color:#0a0f15; text-align:center; padding:28px 20px; border-top:1px solid ${BT_BORDER};">
+    <p style="margin:0 0 6px 0; font-family:Arial,sans-serif; font-size:13px; color:${BT_MUTED};">Keep Learning &nbsp;·&nbsp; Keep Building &nbsp;·&nbsp; Keep Inspiring</p>
+    <p style="margin:0 0 4px 0; font-family:Arial,sans-serif; font-size:13px; font-weight:700; color:${BT_TEXT};">Team GDG On Campus AKGEC</p>
+    <p style="margin:0; font-family:Arial,sans-serif; font-size:11px; color:${BT_MUTED};">&copy; ${new Date().getFullYear()} GDG On Campus AKGEC. All rights reserved.</p>
+  </div>`;
+
+// ─── Email wrapper ────────────────────────────────────────────────────────────
+const wrapEmail = (bodyHtml) => `
+  <div style="background-color:#080c10; padding:20px 0; font-family:Arial,sans-serif;">
+    <div style="max-width:600px; margin:0 auto; background-color:${BT_BG}; border:1px solid ${BT_BORDER}; border-radius:12px; overflow:hidden; box-shadow:0 8px 32px rgba(0,200,83,0.08);">
+      ${emailHeader()}
+      ${bodyHtml}
+      ${emailFooter()}
+    </div>
+  </div>`;
+
 // ==========================================
-// 1. GDG OTP EMAIL
+// 1. BYTE TALKS — OTP EMAIL
 // ==========================================
 export const sendOtpEmail = async (email, name, otp) => {
   if (process.env.TEST_MODE === "true") {
@@ -21,47 +71,30 @@ export const sendOtpEmail = async (email, name, otp) => {
     return;
   }
   try {
-    const mailOptions = {
-      from: `"GDG Event Team" <${process.env.EMAIL_USER || process.env.EMAIL_USERNAME}>`,
-      to: email,
-      subject: "Action Required: Your OTP for Byte Talks 2026 Registration",
-      html: `
-        <div style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; max-width: 600px; margin: 0 auto; padding: 0; border: 1px solid #e0e0e0; border-radius: 12px; background-color: #ffffff; overflow: hidden; box-shadow: 0 8px 24px rgba(0,0,0,0.06);">
-          
-          <div style="background-color: #f8faff; text-align: center; border-bottom: 4px solid #4285F4; padding-top: 35px;">
-            <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTeT5WipoI_LHakY6xsGOShL3OiX9xyiwZXOw&s" alt="Event Logo" style="max-height: 80px; width: auto; margin: 0 auto; display: block;" />
-            <div style="padding: 20px 20px 25px 20px;">
-              <h1 style="color: #4285F4; margin: 0; font-size: 30px; font-weight: 800; letter-spacing: 0.5px;">Byte Talks 2026 🚀</h1>
-            </div>
-          </div>
-
-          <div style="padding: 35px 25px;">
-            <div style="text-align: center; margin-bottom: 25px;">
-              <span style="display: inline-block; background-color: #e8f0fe; color: #1a73e8; padding: 8px 20px; border-radius: 50px; font-size: 16px; font-weight: bold; border: 1px solid #d2e3fc;">
-                Email Verification 🔐
-              </span>
-            </div>
-
-            <p style="font-size: 16px; color: #333;">Hi <strong>${name}</strong>,</p>
-            <p style="font-size: 16px; color: #555; line-height: 1.6;">Thank you for registering for <strong>Byte Talks 2026</strong>. To complete your registration, please verify your email address using the One-Time Password (OTP) below:</p>
-            
-            <div style="text-align: center; margin: 35px 0; padding: 25px; background-color: #f8faff; border-radius: 12px; border: 1px dashed #4285F4;">
-              <span style="display: inline-block; font-size: 36px; font-weight: 800; letter-spacing: 10px; color: #0F9D58; background-color: #ffffff; padding: 16px 36px; border-radius: 10px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); border: 1px solid #e6f4ea;">
-                ${otp}
-              </span>
-            </div>
-            
-            <p style="font-size: 14px; color: #777; text-align: center;">⏳ This OTP is valid for <strong>5 minutes</strong>. Please do not share this code with anyone.</p>
-          </div>
-
-          <div style="background-color: #f8f9fa; text-align: center; padding: 24px; border-top: 1px solid #eeeeee; font-size: 13px; color: #888;">
-            <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTeT5WipoI_LHakY6xsGOShL3OiX9xyiwZXOw&s" alt="GDG Logo" style="max-height: 45px; width: auto; margin: 0 auto 12px auto; display: block;" />
-            <p style="margin: 0 0 10px 0;">Keep Building,<br><strong style="color: #555;">Team GDG On Campus AKGEC</strong></p>
-            <p style="margin: 0;">&copy; ${new Date().getFullYear()} GDG Event Team. All rights reserved.</p>
-          </div>
-
+    const body = `
+      <div style="padding:36px 28px;">
+        <div style="text-align:center; margin-bottom:28px;">
+          <span style="display:inline-block; background-color:rgba(0,200,83,0.12); color:${BT_GREEN}; border:1px solid ${BT_GREEN_DK}; padding:8px 22px; border-radius:50px; font-size:13px; font-weight:700; letter-spacing:2px; text-transform:uppercase;">🔐 Email Verification</span>
         </div>
-      `,
+        <p style="font-size:16px; color:${BT_TEXT}; margin:0 0 12px 0;">Hi <strong>${name}</strong>,</p>
+        <p style="font-size:15px; color:${BT_MUTED}; line-height:1.7; margin:0 0 28px 0;">
+          Thank you for registering for <strong style="color:${BT_TEXT};">Byte Talks — Alumni Edition</strong>.
+          Use the One-Time Password below to verify your email and complete your registration.
+        </p>
+        <div style="text-align:center; margin:0 0 28px 0;">
+          <div style="display:inline-block; background-color:${BT_CARD}; border:2px dashed ${BT_GREEN}; border-radius:12px; padding:28px 40px;">
+            <p style="margin:0 0 8px 0; font-size:11px; font-weight:700; letter-spacing:3px; text-transform:uppercase; color:${BT_MUTED};">YOUR OTP</p>
+            <span style="font-family:'Arial Black',Arial,sans-serif; font-size:42px; font-weight:900; letter-spacing:14px; color:${BT_GREEN};">${otp}</span>
+          </div>
+        </div>
+        <p style="font-size:13px; color:${BT_MUTED}; text-align:center; margin:0;">⏳ This OTP is valid for <strong style="color:${BT_TEXT};">5 minutes</strong>. Do not share it with anyone.</p>
+      </div>`;
+
+    const mailOptions = {
+      from: `"Byte Talks 2026" <${process.env.EMAIL_USER || process.env.EMAIL_USERNAME}>`,
+      to: email,
+      subject: "🔐 Action Required: Your OTP for Byte Talks 2026 Registration",
+      html: wrapEmail(body),
     };
 
     await transporter.sendMail(mailOptions);
@@ -74,106 +107,77 @@ export const sendOtpEmail = async (email, name, otp) => {
 
 
 // ==========================================
-// 2. GDG REGISTRATION SUCCESS EMAIL + QR TICKET PASS
+// 2. BYTE TALKS — REGISTRATION SUCCESS EMAIL + QR TICKET
 // ==========================================
 export const sendRegisterationEmail = async (student) => {
   try {
     const passDataUri = await renderTicket(student);
 
-    const mailOptions = {
-      from: `"GDG Event Team" <${process.env.EMAIL_USER || process.env.EMAIL_USERNAME}>`,
-      to: student.email,
-      subject: "🎉 Registration Confirmed! Your Entry Pass Inside - Byte Talks 2026",
-      html: `
-        <div style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; max-width: 600px; margin: 0 auto; padding: 0; border: 1px solid #e0e0e0; border-radius: 12px; background-color: #ffffff; overflow: hidden; box-shadow: 0 8px 24px rgba(0,0,0,0.06);">
-          
-          <div style="background-color: #f8faff; text-align: center; border-bottom: 4px solid #4285F4; padding-top: 35px;">
-            <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTeT5WipoI_LHakY6xsGOShL3OiX9xyiwZXOw&s" alt="Event Logo" style="max-height: 80px; width: auto; margin: 0 auto; display: block;" />
-            <div style="padding: 20px 20px 25px 20px;">
-              <h1 style="color: #4285F4; margin: 0; font-size: 30px; font-weight: 800; letter-spacing: 0.5px;">Byte Talks 2026 🚀</h1>
-            </div>
-          </div>
-
-          <div style="padding: 35px 25px;">
-            
-            <div style="text-align: center; margin-bottom: 30px;">
-              <span style="display: inline-block; background-color: #e6f4ea; color: #0F9D58; padding: 10px 24px; border-radius: 50px; font-size: 18px; font-weight: bold; border: 1px solid #ceead6;">
-                Registration Confirmed! 🎉
-              </span>
-            </div>
-
-            <p style="font-size: 16px; color: #333;">Hi <strong>${student.name || "Participant"}</strong>,</p>
-            <p style="font-size: 16px; color: #555; line-height: 1.6;">Congratulations! Your registration for <strong>Byte Talks 2026</strong> has been successfully completed. We are thrilled to have you onboard.</p>
-
-            <div style="background-color: #f4f8ff; padding: 24px; border-radius: 10px; margin: 25px 0; border-left: 4px solid #4285F4; border: 1px solid #e1e9fa;">
-              <h3 style="color: #4285F4; margin-top: 0; font-size: 18px;">📍 Event Details</h3>
-              <p style="margin: 8px 0; color: #333; font-size: 15px;"><strong>Date:</strong> 30th October, 2026</p>
-              <p style="margin: 8px 0; color: #333; font-size: 15px;"><strong>Venue:</strong> CSIT Seminar Hall</p>
-              <div style="margin-top: 15px; padding-left: 14px; border-left: 2px solid #aecbfa;">
-                <p style="margin: 6px 0; color: #555; font-size: 14px;"><strong>Time:</strong> 4:00 PM – 8:00 PM</p>
-              </div>
-            </div>
-
-            <div style="background-color: #fafafa; padding: 24px; border-radius: 10px; margin: 25px 0; border: 1px solid #eaeaea;">
-              <h3 style="color: #333; margin-top: 0; font-size: 18px;">📋 Your Details</h3>
-              <table style="width: 100%; border-collapse: collapse; font-size: 15px;">
-                <tr>
-                  <td style="padding: 12px 0; color: #666; border-bottom: 1px solid #f0f0f0;"><strong>Name:</strong></td>
-                  <td style="padding: 12px 0; color: #222; font-weight: 600; border-bottom: 1px solid #f0f0f0; text-align: right;">${student.name || "N/A"}</td>
-                </tr>
-                <tr>
-                  <td style="padding: 12px 0; color: #666; border-bottom: 1px solid #f0f0f0;"><strong>Branch:</strong></td>
-                  <td style="padding: 12px 0; color: #222; font-weight: 600; border-bottom: 1px solid #f0f0f0; text-align: right;">${student.branch}</td>
-                </tr>
-                <tr>
-                  <td style="padding: 12px 0; color: #666;"><strong>Student ID:</strong></td>
-                  <td style="padding: 12px 0; color: #222; font-weight: 600; text-align: right;">${student.studentNumber}</td>
-                </tr>
-              </table>
-            </div>
-
-            <div style="text-align: center; margin: 40px 0; padding: 30px 20px; border: 2px dashed #4285F4; border-radius: 12px; background-color: #f8faff;">
-              <span style="background-color: #4285F4; color: #ffffff; padding: 6px 18px; border-radius: 20px; font-size: 12px; font-weight: bold; text-transform: uppercase; letter-spacing: 1px;">Official Entry Pass</span>
-              <div style="margin-top: 25px;">
-                <img src="cid:gdg-ticket-pass" alt="Entry QR Ticket Pass" style="max-width: 560px; width: 100%; height: auto; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.08);" />
-              </div>
-              <p style="font-size: 14px; color: #666; margin-top: 20px; line-height: 1.5;"><strong>Note:</strong> Please present this QR code at the registration desk for a seamless check-in.</p>
-            </div>
-
-            <div style="background-color: #fffdf5; padding: 24px; border-radius: 10px; margin: 25px 0; border-left: 4px solid #F4B400; border: 1px solid #fce8b2;">
-              <h3 style="color: #d9a000; margin-top: 0; font-size: 18px;">⚠️ Important Instructions</h3>
-              <ul style="color: #555; font-size: 15px; padding-left: 20px; margin-bottom: 0; line-height: 1.7;">
-                <li style="margin-bottom: 8px;">Please ensure your <strong>mobile phones are kept on silent mode</strong> during the event.</li>
-                <li style="margin-bottom: 8px;">Carry your physical <strong>college ID card</strong> for verification.</li>
-                <li>Reach the venue at least <strong>15 minutes early</strong> to avoid queues.</li>
-              </ul>
-            </div>
-
-            <div style="background-color: #fff9f9; padding: 24px; border-radius: 10px; margin: 25px 0; border-left: 4px solid #EA4335; border: 1px solid #fad2cf;">
-              <h3 style="color: #d93025; margin-top: 0; font-size: 18px;">⚖️ Discipline & Decorum</h3>
-              <ul style="color: #555; font-size: 15px; padding-left: 20px; margin-bottom: 0; line-height: 1.7;">
-                <li style="margin-bottom: 8px;">Any kind of cheating attempt will result in immediate disqualification.</li>
-                <li style="margin-bottom: 8px;">Bring your own pen, paper will be provided.</li>
-                <li>Smart watches and other such devices need to be submitted before the start of the drive.</li>
-              </ul>
-            </div>
-
-            <div style="background-color: #f4fcf7; padding: 24px; border-radius: 10px; margin: 25px 0; border-left: 4px solid #0F9D58; border: 1px solid #ceead6;">
-              <h3 style="color: #0d8a4d; margin-top: 0; font-size: 18px;">📞 Need Help? Contact Us</h3>
-              <p style="color: #444; font-size: 15px; margin: 10px 0;"><strong>Naman Srivastava:</strong> 7275573139</p>
-              <p style="color: #444; font-size: 15px; margin: 0;"><strong>Trisha Singh:</strong> 8081387855</p>
-            </div>
-            
-          </div>
-
-          <div style="background-color: #f8f9fa; text-align: center; padding: 24px; border-top: 1px solid #eeeeee; font-size: 13px; color: #888;">
-            <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTeT5WipoI_LHakY6xsGOShL3OiX9xyiwZXOw&s" alt="GDG Logo" style="max-height: 45px; width: auto; margin: 0 auto 12px auto; display: block;" />
-            <p style="margin: 0 0 10px 0;">Keep Building,<br><strong style="color: #555;">Team GDG On Campus AKGEC</strong></p>
-            <p style="margin: 0;">&copy; ${new Date().getFullYear()} GDG Event Team. All rights reserved.</p>
-          </div>
-
+    const body = `
+      <div style="padding:36px 28px;">
+        <div style="text-align:center; margin-bottom:28px;">
+          <span style="display:inline-block; background-color:rgba(0,200,83,0.12); color:${BT_GREEN}; border:1px solid ${BT_GREEN_DK}; padding:8px 22px; border-radius:50px; font-size:13px; font-weight:700; letter-spacing:2px; text-transform:uppercase;">🎉 Registration Confirmed</span>
         </div>
-      `,
+        <p style="font-size:16px; color:${BT_TEXT}; margin:0 0 12px 0;">Hi <strong>${student.name || "Participant"}</strong>,</p>
+        <p style="font-size:15px; color:${BT_MUTED}; line-height:1.7; margin:0 0 28px 0;">
+          You're officially in! 🎤 Your registration for <strong style="color:${BT_TEXT};">Byte Talks — Alumni Edition</strong> has been confirmed.
+          Get ready to <strong style="color:${BT_GREEN};">Learn &middot; Connect &middot; Inspire</strong>.
+        </p>
+
+        <div style="background-color:${BT_CARD}; border:1px solid ${BT_BORDER}; border-left:4px solid ${BT_GREEN}; border-radius:8px; padding:22px; margin:0 0 22px 0;">
+          <h3 style="margin:0 0 14px 0; font-family:'Arial Black',Arial,sans-serif; font-size:12px; font-weight:900; letter-spacing:3px; text-transform:uppercase; color:${BT_GREEN};">&#128205; Event Details</h3>
+          <table role="presentation" cellpadding="0" cellspacing="0" style="width:100%;">
+            <tr><td style="padding:6px 0; font-size:14px; color:${BT_MUTED}; width:40%;">Date</td><td style="padding:6px 0; font-size:14px; color:${BT_TEXT}; font-weight:700;">30th October, 2026</td></tr>
+            <tr><td style="padding:6px 0; font-size:14px; color:${BT_MUTED};">Venue</td><td style="padding:6px 0; font-size:14px; color:${BT_TEXT}; font-weight:700;">CSIT Seminar Hall</td></tr>
+            <tr><td style="padding:6px 0; font-size:14px; color:${BT_MUTED};">Time</td><td style="padding:6px 0; font-size:14px; color:${BT_TEXT}; font-weight:700;">4:00 PM – 8:00 PM</td></tr>
+          </table>
+        </div>
+
+        <div style="background-color:${BT_CARD}; border:1px solid ${BT_BORDER}; border-radius:8px; padding:22px; margin:0 0 22px 0;">
+          <h3 style="margin:0 0 14px 0; font-family:'Arial Black',Arial,sans-serif; font-size:12px; font-weight:900; letter-spacing:3px; text-transform:uppercase; color:${BT_MUTED};">&#128203; Your Details</h3>
+          <table role="presentation" cellpadding="0" cellspacing="0" style="width:100%; border-collapse:collapse; font-size:14px;">
+            <tr style="border-bottom:1px solid ${BT_BORDER};"><td style="padding:10px 0; color:${BT_MUTED};">Name</td><td style="padding:10px 0; color:${BT_TEXT}; font-weight:700; text-align:right;">${student.name || "N/A"}</td></tr>
+            <tr style="border-bottom:1px solid ${BT_BORDER};"><td style="padding:10px 0; color:${BT_MUTED};">Branch</td><td style="padding:10px 0; color:${BT_TEXT}; font-weight:700; text-align:right;">${student.branch}</td></tr>
+            <tr><td style="padding:10px 0; color:${BT_MUTED};">Student ID</td><td style="padding:10px 0; color:${BT_GREEN}; font-weight:700; text-align:right;">${student.studentNumber}</td></tr>
+          </table>
+        </div>
+
+        <div style="text-align:center; margin:0 0 22px 0; padding:28px 20px; background-color:${BT_CARD}; border:2px dashed ${BT_GREEN}; border-radius:12px;">
+          <span style="background-color:${BT_GREEN}; color:#000; padding:6px 18px; border-radius:20px; font-size:11px; font-weight:900; text-transform:uppercase; letter-spacing:2px;">Official Entry Pass</span>
+          <div style="margin-top:22px;"><img src="cid:gdg-ticket-pass" alt="Byte Talks Entry Pass" style="max-width:540px; width:100%; height:auto; border-radius:8px; box-shadow:0 4px 16px rgba(0,200,83,0.2);" /></div>
+          <p style="font-size:13px; color:${BT_MUTED}; margin-top:16px; line-height:1.6;"><strong style="color:${BT_TEXT};">Note:</strong> Present this QR code at the registration desk for seamless check-in.</p>
+        </div>
+
+        <div style="background-color:${BT_CARD}; border:1px solid #3d2b00; border-left:4px solid #f9a825; border-radius:8px; padding:22px; margin:0 0 22px 0;">
+          <h3 style="margin:0 0 12px 0; font-family:'Arial Black',Arial,sans-serif; font-size:12px; font-weight:900; letter-spacing:3px; text-transform:uppercase; color:#f9a825;">&#9888;&#65039; Important Instructions</h3>
+          <ul style="margin:0; padding-left:18px; color:${BT_MUTED}; font-size:14px; line-height:1.8;">
+            <li style="margin-bottom:6px;">Keep your <strong style="color:${BT_TEXT};">mobile phones on silent mode</strong> during the event.</li>
+            <li style="margin-bottom:6px;">Carry your physical <strong style="color:${BT_TEXT};">college ID card</strong> for verification.</li>
+            <li>Arrive at least <strong style="color:${BT_TEXT};">15 minutes early</strong> to avoid queues.</li>
+          </ul>
+        </div>
+
+        <div style="background-color:${BT_CARD}; border:1px solid #3d0a06; border-left:4px solid #f44336; border-radius:8px; padding:22px; margin:0 0 22px 0;">
+          <h3 style="margin:0 0 12px 0; font-family:'Arial Black',Arial,sans-serif; font-size:12px; font-weight:900; letter-spacing:3px; text-transform:uppercase; color:#f44336;">&#9878;&#65039; Discipline &amp; Decorum</h3>
+          <ul style="margin:0; padding-left:18px; color:${BT_MUTED}; font-size:14px; line-height:1.8;">
+            <li style="margin-bottom:6px;">Any cheating attempt will result in immediate disqualification.</li>
+            <li style="margin-bottom:6px;">Bring your own pen; paper will be provided.</li>
+            <li>Smart watches and similar devices must be submitted before the event begins.</li>
+          </ul>
+        </div>
+
+        <div style="background-color:${BT_CARD}; border:1px solid ${BT_BORDER}; border-left:4px solid ${BT_GREEN}; border-radius:8px; padding:22px; margin:0;">
+          <h3 style="margin:0 0 12px 0; font-family:'Arial Black',Arial,sans-serif; font-size:12px; font-weight:900; letter-spacing:3px; text-transform:uppercase; color:${BT_GREEN};">&#128222; Need Help?</h3>
+          <p style="margin:6px 0; font-size:14px; color:${BT_MUTED};"><strong style="color:${BT_TEXT};">Naman Srivastava:</strong> 7275573139</p>
+          <p style="margin:0; font-size:14px; color:${BT_MUTED};"><strong style="color:${BT_TEXT};">Trisha Singh:</strong> 8081387855</p>
+        </div>
+      </div>`;
+
+    const mailOptions = {
+      from: `"Byte Talks 2026" <${process.env.EMAIL_USER || process.env.EMAIL_USERNAME}>`,
+      to: student.email,
+      subject: "🎉 You're In! Your Entry Pass for Byte Talks 2026 — Alumni Edition",
+      html: wrapEmail(body),
       attachments: [
         {
           filename: `ByteTalks-Ticket-${student.studentNumber || "2026"}.png`,
@@ -193,90 +197,59 @@ export const sendRegisterationEmail = async (student) => {
 
 
 // ==========================================
-// 3. EVENT REMINDER EMAIL
+// 3. BYTE TALKS — EVENT REMINDER EMAIL
 // ==========================================
 export const sendReminderEmail = async (student) => {
   try {
     const passDataUri = await renderTicket(student);
 
-    const mailOptions = {
-      from: `"GDG Event Team" <${process.env.EMAIL_USER || process.env.EMAIL_USERNAME}>`,
-      to: student.email,
-      subject: "📢 Important: Event Reminder for Byte Talks 2026 - GDG Event",
-      html: `
-        <div style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; max-width: 600px; margin: 0 auto; padding: 0; border: 1px solid #e0e0e0; border-radius: 12px; background-color: #ffffff; overflow: hidden; box-shadow: 0 8px 24px rgba(0,0,0,0.06);">
-          
-          <div style="background-color: #f8faff; text-align: center; border-bottom: 4px solid #4285F4; padding-top: 35px;">
-            <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTeT5WipoI_LHakY6xsGOShL3OiX9xyiwZXOw&s" alt="Event Logo" style="max-height: 80px; width: auto; margin: 0 auto; display: block;" />
-            <div style="padding: 20px 20px 25px 20px;">
-              <h1 style="color: #4285F4; margin: 0; font-size: 30px; font-weight: 800; letter-spacing: 0.5px;">Reminder for Byte Talks 2026 🚀</h1>
-            </div>
-          </div>
-
-          <div style="padding: 35px 25px;">
-            
-            <div style="text-align: center; margin-bottom: 30px;">
-              <span style="display: inline-block; background-color: #fff4e5; color: #ff9800; padding: 10px 24px; border-radius: 50px; font-size: 18px; font-weight: bold; border: 1px solid #ffe5cc;">
-                Event Reminder! ⏳
-              </span>
-            </div>
-
-            <p style="font-size: 16px; color: #333;">Hi <strong>${student.name || "Participant"}</strong>,</p>
-            <p style="font-size: 16px; color: #555; line-height: 1.6;">
-This is a reminder for the upcoming event. We are excited to see you there! 
-</p>
-
-            <div style="background-color: #f4f8ff; padding: 24px; border-radius: 10px; margin: 25px 0; border-left: 4px solid #4285F4; border: 1px solid #e1e9fa;">
-              <h3 style="color: #4285F4; margin-top: 0; font-size: 18px;">📍 Event Details</h3>
-              <p style="margin: 8px 0; color: #333; font-size: 15px;"><strong>Date:</strong> 30th October, 2026</p>
-              <p style="margin: 8px 0; color: #333; font-size: 15px;"><strong>Venue:</strong> CSIT Seminar Hall</p>
-              <div style="margin-top: 15px; padding-left: 14px; border-left: 2px solid #aecbfa;">
-                <p style="margin: 6px 0; color: #555; font-size: 14px;"><strong>Time:</strong> 4:00 PM – 8:00 PM</p>
-              </div>
-            </div>
-
-            <div style="background-color: #fafafa; padding: 24px; border-radius: 10px; margin: 25px 0; border: 1px solid #eaeaea;">
-              <h3 style="color: #333; margin-top: 0; font-size: 18px;">📋 Your Details</h3>
-              <table style="width: 100%; border-collapse: collapse; font-size: 15px;">
-                <tr>
-                  <td style="padding: 12px 0; color: #666; border-bottom: 1px solid #f0f0f0;"><strong>Name:</strong></td>
-                  <td style="padding: 12px 0; color: #222; font-weight: 600; border-bottom: 1px solid #f0f0f0; text-align: right;">${student.name || "N/A"}</td>
-                </tr>
-                <tr>
-                  <td style="padding: 12px 0; color: #666; border-bottom: 1px solid #f0f0f0;"><strong>Branch:</strong></td>
-                  <td style="padding: 12px 0; color: #222; font-weight: 600; border-bottom: 1px solid #f0f0f0; text-align: right;">${student.branch}</td>
-                </tr>
-                <tr>
-                  <td style="padding: 12px 0; color: #666;"><strong>Student ID:</strong></td>
-                  <td style="padding: 12px 0; color: #222; font-weight: 600; text-align: right;">${student.studentNumber}</td>
-                </tr>
-              </table>
-            </div>
-
-            <div style="text-align: center; margin: 40px 0; padding: 30px 20px; border: 2px dashed #4285F4; border-radius: 12px; background-color: #f8faff;">
-              <span style="background-color: #4285F4; color: #ffffff; padding: 6px 18px; border-radius: 20px; font-size: 12px; font-weight: bold; text-transform: uppercase; letter-spacing: 1px;">Official Entry Pass</span>
-              <div style="margin-top: 25px;">
-                <img src="cid:gdg-ticket-pass" alt="Entry QR Ticket Pass" style="max-width: 560px; width: 100%; height: auto; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.08);" />
-              </div>
-              <p style="font-size: 14px; color: #666; margin-top: 20px; line-height: 1.5;"><strong>Note:</strong> Please present this QR code at the registration desk for a seamless check-in.</p>
-            </div>
-
-            <div style="background-color: #f4fcf7; padding: 24px; border-radius: 10px; margin: 25px 0; border-left: 4px solid #0F9D58; border: 1px solid #ceead6;">
-              <h3 style="color: #0d8a4d; margin-top: 0; font-size: 18px;">📞 Need Help? Contact Us</h3>
-              <p style="color: #444; font-size: 15px; margin: 10px 0;"><strong>Naman Srivastava:</strong> 7275573139</p>
-              <p style="color: #444; font-size: 15px; margin: 0;"><strong>Trisha Singh:</strong> 8081387855</p>
-            </div>
-            
-          </div>
-
-          <div style="background-color: #f8f9fa; text-align: center; padding: 24px; border-top: 1px solid #eeeeee; font-size: 13px; color: #888;">
-            <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTeT5WipoI_LHakY6xsGOShL3OiX9xyiwZXOw&s" alt="GDG Logo" style="max-height: 45px; width: auto; margin: 0 auto 12px auto; display: block;" />
-            <p style="margin: 0 0 10px 0;">Keep Building,<br><strong style="color: #555;">Team GDG On Campus AKGEC</strong></p>
-            <p style="margin: 0;">&copy; ${new Date().getFullYear()} GDG Event Team. All rights reserved.</p>
-          </div>
-
+    const body = `
+      <div style="padding:36px 28px;">
+        <div style="text-align:center; margin-bottom:28px;">
+          <span style="display:inline-block; background-color:rgba(249,168,37,0.12); color:#f9a825; border:1px solid #7a5200; padding:8px 22px; border-radius:50px; font-size:13px; font-weight:700; letter-spacing:2px; text-transform:uppercase;">⏳ Event Reminder</span>
         </div>
-      `,
+        <p style="font-size:16px; color:${BT_TEXT}; margin:0 0 12px 0;">Hi <strong>${student.name || "Participant"}</strong>,</p>
+        <p style="font-size:15px; color:${BT_MUTED}; line-height:1.7; margin:0 0 28px 0;">
+          Just a heads-up — <strong style="color:${BT_TEXT};">Byte Talks — Alumni Edition</strong> is almost here! 🎤
+          We can't wait to see you there. Here's everything you need.
+        </p>
+
+        <div style="background-color:${BT_CARD}; border:1px solid ${BT_BORDER}; border-left:4px solid ${BT_GREEN}; border-radius:8px; padding:22px; margin:0 0 22px 0;">
+          <h3 style="margin:0 0 14px 0; font-family:'Arial Black',Arial,sans-serif; font-size:12px; font-weight:900; letter-spacing:3px; text-transform:uppercase; color:${BT_GREEN};">&#128205; Event Details</h3>
+          <table role="presentation" cellpadding="0" cellspacing="0" style="width:100%;">
+            <tr><td style="padding:6px 0; font-size:14px; color:${BT_MUTED}; width:40%;">Date</td><td style="padding:6px 0; font-size:14px; color:${BT_TEXT}; font-weight:700;">30th October, 2026</td></tr>
+            <tr><td style="padding:6px 0; font-size:14px; color:${BT_MUTED};">Venue</td><td style="padding:6px 0; font-size:14px; color:${BT_TEXT}; font-weight:700;">CSIT Seminar Hall</td></tr>
+            <tr><td style="padding:6px 0; font-size:14px; color:${BT_MUTED};">Time</td><td style="padding:6px 0; font-size:14px; color:${BT_TEXT}; font-weight:700;">4:00 PM – 8:00 PM</td></tr>
+          </table>
+        </div>
+
+        <div style="background-color:${BT_CARD}; border:1px solid ${BT_BORDER}; border-radius:8px; padding:22px; margin:0 0 22px 0;">
+          <h3 style="margin:0 0 14px 0; font-family:'Arial Black',Arial,sans-serif; font-size:12px; font-weight:900; letter-spacing:3px; text-transform:uppercase; color:${BT_MUTED};">&#128203; Your Details</h3>
+          <table role="presentation" cellpadding="0" cellspacing="0" style="width:100%; border-collapse:collapse; font-size:14px;">
+            <tr style="border-bottom:1px solid ${BT_BORDER};"><td style="padding:10px 0; color:${BT_MUTED};">Name</td><td style="padding:10px 0; color:${BT_TEXT}; font-weight:700; text-align:right;">${student.name || "N/A"}</td></tr>
+            <tr style="border-bottom:1px solid ${BT_BORDER};"><td style="padding:10px 0; color:${BT_MUTED};">Branch</td><td style="padding:10px 0; color:${BT_TEXT}; font-weight:700; text-align:right;">${student.branch}</td></tr>
+            <tr><td style="padding:10px 0; color:${BT_MUTED};">Student ID</td><td style="padding:10px 0; color:${BT_GREEN}; font-weight:700; text-align:right;">${student.studentNumber}</td></tr>
+          </table>
+        </div>
+
+        <div style="text-align:center; margin:0 0 22px 0; padding:28px 20px; background-color:${BT_CARD}; border:2px dashed ${BT_GREEN}; border-radius:12px;">
+          <span style="background-color:${BT_GREEN}; color:#000; padding:6px 18px; border-radius:20px; font-size:11px; font-weight:900; text-transform:uppercase; letter-spacing:2px;">Official Entry Pass</span>
+          <div style="margin-top:22px;"><img src="cid:gdg-ticket-pass" alt="Byte Talks Entry Pass" style="max-width:540px; width:100%; height:auto; border-radius:8px; box-shadow:0 4px 16px rgba(0,200,83,0.2);" /></div>
+          <p style="font-size:13px; color:${BT_MUTED}; margin-top:16px; line-height:1.6;"><strong style="color:${BT_TEXT};">Note:</strong> Present this QR code at the registration desk for seamless check-in.</p>
+        </div>
+
+        <div style="background-color:${BT_CARD}; border:1px solid ${BT_BORDER}; border-left:4px solid ${BT_GREEN}; border-radius:8px; padding:22px; margin:0;">
+          <h3 style="margin:0 0 12px 0; font-family:'Arial Black',Arial,sans-serif; font-size:12px; font-weight:900; letter-spacing:3px; text-transform:uppercase; color:${BT_GREEN};">&#128222; Need Help?</h3>
+          <p style="margin:6px 0; font-size:14px; color:${BT_MUTED};"><strong style="color:${BT_TEXT};">Naman Srivastava:</strong> 7275573139</p>
+          <p style="margin:0; font-size:14px; color:${BT_MUTED};"><strong style="color:${BT_TEXT};">Trisha Singh:</strong> 8081387855</p>
+        </div>
+      </div>`;
+
+    const mailOptions = {
+      from: `"Byte Talks 2026" <${process.env.EMAIL_USER || process.env.EMAIL_USERNAME}>`,
+      to: student.email,
+      subject: "📢 Reminder: Byte Talks — Alumni Edition is Almost Here!",
+      html: wrapEmail(body),
       attachments: [
         {
           filename: `ByteTalks-Ticket-${student.studentNumber || "2026"}.png`,
