@@ -1,4 +1,4 @@
-name: Deploy to EC2
+name: 🚀 Deploy to AWS EC2
 
 on:
   push:
@@ -6,29 +6,31 @@ on:
 
 jobs:
   deploy:
+    name: Deploy Backend to EC2
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout code
+      - name: ✅ Checkout code
         uses: actions/checkout@v4
 
-      - name: Copy files to EC2
-        uses: appleboy/scp-action@v0.1.7
-        with:
-          host: ${{ secrets.EC2_HOST }}
-          username: ${{ secrets.EC2_USER }}
-          key: ${{ secrets.EC2_SSH_KEY }}
-          source: "."
-          target: "~/GDGBackend"
-
-      - name: Deploy to EC2 via SSH
+      - name: 🚀 Deploy via SSH
         uses: appleboy/ssh-action@v1
         with:
           host: ${{ secrets.EC2_HOST }}
           username: ${{ secrets.EC2_USER }}
           key: ${{ secrets.EC2_SSH_KEY }}
           script: |
-            cd ~/GDGBackend
+            echo "📦 Pulling latest code..."
+            cd ~/ByteTalk
+            git pull origin main
+
+            echo "📥 Installing dependencies..."
             npm install --production
+
+            echo "🔄 Restarting PM2..."
             pm2 restart ecosystem.config.cjs --env production || pm2 start ecosystem.config.cjs --env production
+
             pm2 save
+
+            echo "✅ Deployment complete!"
+            pm2 list
