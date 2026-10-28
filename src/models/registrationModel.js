@@ -96,18 +96,9 @@ const registrationSchema = new mongoose.Schema(
     //   required: true,
     // },
 
-    domain: {
-      type: String,
-      enum: ["frontend development", "backend development", "ml", "app", "designing", "managerial"],
-      required: [true, "Domain is required"],
-    },
     githubId: {
       type: String,
       default: "",
-    },
-    hackerrankId: {
-      type: String,
-      required: [true, "HackerRank ID is required"],
     },
     isVerified: {
       type: Boolean,

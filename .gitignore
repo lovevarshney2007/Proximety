@@ -7,3 +7,4 @@ logs/
 *.conf
 test-email-preview.js
 test-endpoints.js
+SERVER_DEVOPS_GUIDE.md

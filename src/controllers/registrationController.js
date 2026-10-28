@@ -160,7 +160,7 @@ export const sendRegistrationOtp = async (req, res, next) => {
     if (error.isJoi) {
       return res.status(422).json({
         success: false,
-        message: "Invalid request data",
+        message: error.details?.[0]?.message || "Invalid request data",
       });
     }
     next(error);
@@ -329,7 +329,7 @@ export const registerStudent = async (req, res, next) => {
     if (error.isJoi) {
       return res.status(422).json({
         success: false,
-        message: "Invalid request data",
+        message: error.details?.[0]?.message || "Invalid request data",
       });
     }
 

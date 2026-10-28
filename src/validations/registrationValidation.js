@@ -87,24 +87,12 @@ const registrationValidation = Joi.object({
   //   "string.empty": "Captcha token is required",
   // }),
 
-  domain: Joi.string()
-    .valid("frontend development", "backend development", "ml", "app", "designing", "managerial")
-    .required()
-    .messages({
-      "any.only": "Invalid domain selection",
-      "string.empty": "Domain is required",
-    }),
-
   githubId: Joi.string()
     .optional()
     .allow('', null)
     .messages({
       "string.empty": "GitHub ID cannot be empty if provided",
     }),
-
-  hackerrankId: Joi.string().required().messages({
-    "string.empty": "HackerRank ID is required",
-  }),
 });
 
 const sendOtpValidation = Joi.object({
