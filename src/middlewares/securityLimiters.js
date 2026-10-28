@@ -155,7 +155,7 @@ const handleThrottledRateLimitViolation = (req, res, options, eventType, maxAtte
           payload: safePayload(req.body),
         }
       },
-      { upsert: true, new: true } 
+      { upsert: true, returnDocument: "after" } 
     ).catch(err => console.error(`Async Logging Error (${eventType}):`, err.message));
   }
 };
