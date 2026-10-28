@@ -7,8 +7,9 @@ import { generateQRCode } from "../ticket/generateQRCode.js";
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const LOGO_PATH = path.resolve(__dirname, "..", "..", "assets", "logos", "byte-talks-logo.png");
+const MIC_PATH = path.resolve(__dirname, "..", "..", "assets", "graphics", "mic-icon.png");
 
-// Lazy-cached base64 data URI of the Byte Talks logo (for local previews & web rendering)
+// Lazy-cached base64 data URIs (for local browser preview & fallback rendering)
 let _logoDataUri = null;
 export function getLogoDataUri() {
   if (!_logoDataUri) {
@@ -21,6 +22,20 @@ export function getLogoDataUri() {
     }
   }
   return _logoDataUri;
+}
+
+let _micDataUri = null;
+export function getMicDataUri() {
+  if (!_micDataUri) {
+    try {
+      const buf = fs.readFileSync(MIC_PATH);
+      _micDataUri = `data:image/png;base64,${buf.toString("base64")}`;
+    } catch (err) {
+      console.warn("Could not load mic-icon.png:", err.message);
+      _micDataUri = "";
+    }
+  }
+  return _micDataUri;
 }
 
 const transporter = nodemailer.createTransport({
@@ -46,27 +61,20 @@ const BT_TEXT         = "#f0f4f8";               // Clean white text
 const BT_TEXT_MUTED   = "#aab4c2";               // Body secondary text
 const BT_MUTED        = "#8e99a8";               // Labels & metadata
 
-// ─── Shared Header HTML with Microphone Icon + Logo Lockup ────────────────────
-export const emailHeader = (logoSrc = "cid:byte-talks-logo") => `
+// ─── Shared Header HTML with Rasterized PNG Microphone + Logo Lockup ──────────
+export const emailHeader = (logoSrc = "cid:byte-talks-logo", micSrc = "cid:byte-talks-mic") => `
   <!-- Top Emerald Gradient Bar -->
   <div style="background:linear-gradient(90deg, #097b59 0%, #2dd494 50%, #097b59 100%); height:4px; width:100%;"></div>
 
   <div style="background-color:${BT_CONTAINER}; text-align:center; padding:32px 20px 22px; border-bottom:1px solid #282e3d;">
-    <!-- Logo + Mic Lockup Table -->
+    <!-- Logo + Mic Lockup Table (Uses <img> tags so Gmail/Outlook never strip it) -->
     <table role="presentation" cellpadding="0" cellspacing="0" style="margin:0 auto;">
       <tr>
         <td style="vertical-align:middle; padding-right:14px;">
-          <div style="width:44px; height:44px; background:rgba(9,123,89,0.18); border:1px solid #097b59; border-radius:12px; text-align:center; box-shadow:0 0 16px rgba(9,123,89,0.3);">
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="vertical-align:middle; margin-top:10px;">
-              <rect x="9" y="3" width="6" height="11" rx="3" fill="${BT_ACCENT}"/>
-              <path d="M5.5 10v1.5a6.5 6.5 0 0 0 13 0V10" stroke="${BT_ACCENT}" stroke-width="2" stroke-linecap="round"/>
-              <line x1="12" y1="18" x2="12" y2="21" stroke="${BT_ACCENT}" stroke-width="2" stroke-linecap="round"/>
-              <line x1="8" y1="21" x2="16" y2="21" stroke="${BT_ACCENT}" stroke-width="2" stroke-linecap="round"/>
-            </svg>
-          </div>
+          <img src="${micSrc}" alt="Microphone" width="44" height="44" style="width:44px; height:44px; display:block; border-radius:12px; border:0; outline:none;" />
         </td>
         <td style="vertical-align:middle;">
-          <img src="${logoSrc}" alt="Byte Talks" width="200" style="width:200px; max-width:100%; height:auto; display:block;" />
+          <img src="${logoSrc}" alt="Byte Talks" width="200" style="width:200px; max-width:100%; height:auto; display:block; border:0; outline:none;" />
         </td>
       </tr>
     </table>
@@ -87,10 +95,10 @@ export const emailFooter = () => `
   </div>`;
 
 // ─── Email Wrapper ────────────────────────────────────────────────────────────
-export const wrapEmail = (bodyHtml, logoSrc = "cid:byte-talks-logo") => `
+export const wrapEmail = (bodyHtml, logoSrc = "cid:byte-talks-logo", micSrc = "cid:byte-talks-mic") => `
   <div style="background-color:${BT_BG}; padding:28px 12px; font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;">
     <div style="max-width:580px; margin:0 auto; background-color:${BT_CONTAINER}; border:1px solid ${BT_BORDER}; border-radius:12px; overflow:hidden; box-shadow:0 10px 36px rgba(0,0,0,0.45);">
-      ${emailHeader(logoSrc)}
+      ${emailHeader(logoSrc, micSrc)}
       ${bodyHtml}
       ${emailFooter()}
     </div>
@@ -99,7 +107,7 @@ export const wrapEmail = (bodyHtml, logoSrc = "cid:byte-talks-logo") => `
 // ─── Exported Template Builders (Single Source of Truth) ─────────────────────
 
 // 1. OTP Email Template
-export const buildOtpEmailHtml = (name, otp, logoSrc = "cid:byte-talks-logo") => {
+export const buildOtpEmailHtml = (name, otp, logoSrc = "cid:byte-talks-logo", micSrc = "cid:byte-talks-mic") => {
   const body = `
       <div style="padding:32px 28px;">
         <p style="font-size:15px; color:#ffffff; font-weight:600; margin:0 0 10px 0;">Hi ${name},</p>
@@ -125,14 +133,15 @@ export const buildOtpEmailHtml = (name, otp, logoSrc = "cid:byte-talks-logo") =>
           If you did not initiate this request, you can safely ignore this email.
         </p>
       </div>`;
-  return wrapEmail(body, logoSrc);
+  return wrapEmail(body, logoSrc, micSrc);
 };
 
 // 2. Registration Confirmation Template
 export const buildRegistrationEmailHtml = (
   student,
   qrCodeSrc = "cid:student-qr-code",
-  logoSrc = "cid:byte-talks-logo"
+  logoSrc = "cid:byte-talks-logo",
+  micSrc = "cid:byte-talks-mic"
 ) => {
   const body = `
       <div style="padding:32px 28px;">
@@ -268,14 +277,15 @@ export const buildRegistrationEmailHtml = (
           </table>
         </div>
       </div>`;
-  return wrapEmail(body, logoSrc);
+  return wrapEmail(body, logoSrc, micSrc);
 };
 
 // 3. Event Reminder Template
 export const buildReminderEmailHtml = (
   student,
   qrCodeSrc = "cid:student-qr-code",
-  logoSrc = "cid:byte-talks-logo"
+  logoSrc = "cid:byte-talks-logo",
+  micSrc = "cid:byte-talks-mic"
 ) => {
   const body = `
       <div style="padding:32px 28px;">
@@ -411,7 +421,7 @@ export const buildReminderEmailHtml = (
           </table>
         </div>
       </div>`;
-  return wrapEmail(body, logoSrc);
+  return wrapEmail(body, logoSrc, micSrc);
 };
 
 // ==========================================
@@ -427,12 +437,17 @@ export const sendOtpEmail = async (email, name, otp) => {
       from: `"Byte Talks 2026" <${process.env.EMAIL_USER || process.env.EMAIL_USERNAME}>`,
       to: email,
       subject: "Byte Talks 2026 — Verification Code",
-      html: buildOtpEmailHtml(name, otp, "cid:byte-talks-logo"),
+      html: buildOtpEmailHtml(name, otp, "cid:byte-talks-logo", "cid:byte-talks-mic"),
       attachments: [
         {
           filename: "byte-talks-logo.png",
           path: LOGO_PATH,
           cid: "byte-talks-logo",
+        },
+        {
+          filename: "mic-icon.png",
+          path: MIC_PATH,
+          cid: "byte-talks-mic",
         },
       ],
     };
@@ -457,12 +472,17 @@ export const sendRegisterationEmail = async (student) => {
       from: `"Byte Talks 2026" <${process.env.EMAIL_USER || process.env.EMAIL_USERNAME}>`,
       to: student.email,
       subject: "Registration Confirmed — Byte Talks 2026",
-      html: buildRegistrationEmailHtml(student, "cid:student-qr-code", "cid:byte-talks-logo"),
+      html: buildRegistrationEmailHtml(student, "cid:student-qr-code", "cid:byte-talks-logo", "cid:byte-talks-mic"),
       attachments: [
         {
           filename: "byte-talks-logo.png",
           path: LOGO_PATH,
           cid: "byte-talks-logo",
+        },
+        {
+          filename: "mic-icon.png",
+          path: MIC_PATH,
+          cid: "byte-talks-mic",
         },
         {
           filename: `ByteTalks-QR-${student.studentNumber || "entry"}.png`,
@@ -492,12 +512,17 @@ export const sendReminderEmail = async (student) => {
       from: `"Byte Talks 2026" <${process.env.EMAIL_USER || process.env.EMAIL_USERNAME}>`,
       to: student.email,
       subject: "Event Reminder — Byte Talks 2026",
-      html: buildReminderEmailHtml(student, "cid:student-qr-code", "cid:byte-talks-logo"),
+      html: buildReminderEmailHtml(student, "cid:student-qr-code", "cid:byte-talks-logo", "cid:byte-talks-mic"),
       attachments: [
         {
           filename: "byte-talks-logo.png",
           path: LOGO_PATH,
           cid: "byte-talks-logo",
+        },
+        {
+          filename: "mic-icon.png",
+          path: MIC_PATH,
+          cid: "byte-talks-mic",
         },
         {
           filename: `ByteTalks-QR-${student.studentNumber || "entry"}.png`,
