@@ -1,5 +1,27 @@
+import fs from "fs";
+import path from "path";
+import { fileURLToPath } from "url";
 import nodemailer from "nodemailer";
 import { generateQRCode } from "../ticket/generateQRCode.js";
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+const LOGO_PATH = path.resolve(__dirname, "..", "..", "assets", "logos", "byte-talks-logo.png");
+
+// Lazy-cached base64 data URI of the Byte Talks logo (for local previews & web rendering)
+let _logoDataUri = null;
+export function getLogoDataUri() {
+  if (!_logoDataUri) {
+    try {
+      const buf = fs.readFileSync(LOGO_PATH);
+      _logoDataUri = `data:image/png;base64,${buf.toString("base64")}`;
+    } catch (err) {
+      console.warn("Could not load byte-talks-logo.png:", err.message);
+      _logoDataUri = "";
+    }
+  }
+  return _logoDataUri;
+}
 
 const transporter = nodemailer.createTransport({
   host: "smtp.gmail.com",
@@ -12,53 +34,63 @@ const transporter = nodemailer.createTransport({
   },
 });
 
-// ─── Byte Talks Design Tokens (Custom Palette: #097b59 & #1d212c) ──────────────
-const BT_PRIMARY      = "#097b59";               // Deep emerald green accent
-const BT_PRIMARY_HOVER= "#0c956c";
-const BT_PRIMARY_TINT = "rgba(9, 123, 89, 0.16)";
+// ─── Design Tokens (Palette: #097b59 & #1d212c) ──────────────────────────────
+const BT_PRIMARY      = "#097b59";               // Primary emerald green
+const BT_ACCENT       = "#2dd494";               // Bright emerald accent
 const BT_CONTAINER    = "#1d212c";               // Dark slate container base
-const BT_BG           = "#13161f";               // Outer canvas background
-const BT_CARD         = "#242938";               // Card surfaces
-const BT_BORDER       = "#2f3648";               // Subtle card borders
-const BT_TEXT         = "#f0f4f8";               // High-contrast clean text
-const BT_MUTED        = "#9ba5b5";               // Readable secondary text
+const BT_BG           = "#12151d";               // Canvas background
+const BT_CARD         = "#222735";               // Card surfaces
+const BT_CARD_HEADER  = "#1a1e2a";               // Elevated card headers
+const BT_BORDER       = "#2e3547";               // Card borders
+const BT_TEXT         = "#f0f4f8";               // Clean white text
+const BT_TEXT_MUTED   = "#aab4c2";               // Body secondary text
+const BT_MUTED        = "#8e99a8";               // Labels & metadata
 
-// ─── Shared header HTML ───────────────────────────────────────────────────────
-export const emailHeader = () => `
-  <div style="background-color:${BT_CONTAINER}; text-align:center; padding:38px 20px 28px; border-bottom:3px solid ${BT_PRIMARY};">
+// ─── Shared Header HTML with Microphone Icon + Logo Lockup ────────────────────
+export const emailHeader = (logoSrc = "cid:byte-talks-logo") => `
+  <!-- Top Emerald Gradient Bar -->
+  <div style="background:linear-gradient(90deg, #097b59 0%, #2dd494 50%, #097b59 100%); height:4px; width:100%;"></div>
+
+  <div style="background-color:${BT_CONTAINER}; text-align:center; padding:32px 20px 22px; border-bottom:1px solid #282e3d;">
+    <!-- Logo + Mic Lockup Table -->
     <table role="presentation" cellpadding="0" cellspacing="0" style="margin:0 auto;">
       <tr>
-        <td style="padding-right:14px; vertical-align:middle;">
-          <svg width="42" height="42" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <rect width="24" height="24" rx="12" fill="${BT_PRIMARY}" fill-opacity="0.18"/>
-            <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3Z" fill="${BT_PRIMARY}"/>
-            <path d="M19 10v2a7 7 0 0 1-14 0v-2" stroke="${BT_PRIMARY}" stroke-width="1.8" stroke-linecap="round"/>
-            <line x1="12" y1="19" x2="12" y2="23" stroke="${BT_PRIMARY}" stroke-width="1.8" stroke-linecap="round"/>
-            <line x1="8" y1="23" x2="16" y2="23" stroke="${BT_PRIMARY}" stroke-width="1.8" stroke-linecap="round"/>
-          </svg>
+        <td style="vertical-align:middle; padding-right:14px;">
+          <div style="width:44px; height:44px; background:rgba(9,123,89,0.18); border:1px solid #097b59; border-radius:12px; text-align:center; box-shadow:0 0 16px rgba(9,123,89,0.3);">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="vertical-align:middle; margin-top:10px;">
+              <rect x="9" y="3" width="6" height="11" rx="3" fill="${BT_ACCENT}"/>
+              <path d="M5.5 10v1.5a6.5 6.5 0 0 0 13 0V10" stroke="${BT_ACCENT}" stroke-width="2" stroke-linecap="round"/>
+              <line x1="12" y1="18" x2="12" y2="21" stroke="${BT_ACCENT}" stroke-width="2" stroke-linecap="round"/>
+              <line x1="8" y1="21" x2="16" y2="21" stroke="${BT_ACCENT}" stroke-width="2" stroke-linecap="round"/>
+            </svg>
+          </div>
         </td>
-        <td style="vertical-align:middle; text-align:left;">
-          <div style="font-family:'Arial Black',Arial,sans-serif; font-size:30px; font-weight:900; color:#ffffff; letter-spacing:2px; text-transform:uppercase; line-height:1;">BYTE</div>
-          <div style="font-family:'Arial Black',Arial,sans-serif; font-size:30px; font-weight:900; color:${BT_PRIMARY}; letter-spacing:2px; text-transform:uppercase; line-height:1;">TALKS</div>
+        <td style="vertical-align:middle;">
+          <img src="${logoSrc}" alt="Byte Talks" width="200" style="width:200px; max-width:100%; height:auto; display:block;" />
         </td>
       </tr>
     </table>
-    <p style="margin:14px 0 0 0; font-family:Arial,sans-serif; font-size:11px; font-weight:700; letter-spacing:4px; text-transform:uppercase; color:${BT_MUTED};">ALUMNI EDITION &nbsp;·&nbsp; 30 OCT &nbsp;·&nbsp; CSIT SEMINAR HALL</p>
+
+    <!-- Edition Subtitle Badge -->
+    <div style="margin-top:14px;">
+      <span style="display:inline-block; background:rgba(9,123,89,0.12); border:1px solid rgba(9,123,89,0.35); color:${BT_ACCENT}; font-size:10px; font-weight:700; letter-spacing:2px; text-transform:uppercase; padding:4px 14px; border-radius:20px;">
+        Alumni Edition &bull; 30 Oct &bull; CSIT Seminar Hall
+      </span>
+    </div>
   </div>`;
 
-// ─── Shared footer HTML ───────────────────────────────────────────────────────
+// ─── Shared Footer HTML ───────────────────────────────────────────────────────
 export const emailFooter = () => `
-  <div style="background-color:#161922; text-align:center; padding:28px 20px; border-top:1px solid ${BT_BORDER};">
-    <p style="margin:0 0 6px 0; font-family:Arial,sans-serif; font-size:13px; color:${BT_MUTED};">Keep Learning &nbsp;·&nbsp; Keep Building &nbsp;·&nbsp; Keep Inspiring</p>
-    <p style="margin:0 0 4px 0; font-family:Arial,sans-serif; font-size:13px; font-weight:700; color:${BT_TEXT};">Team GDG On Campus AKGEC</p>
-    <p style="margin:0; font-family:Arial,sans-serif; font-size:11px; color:${BT_MUTED};">&copy; ${new Date().getFullYear()} GDG On Campus AKGEC. All rights reserved.</p>
+  <div style="background-color:#161922; text-align:center; padding:22px 20px; border-top:1px solid #252a37;">
+    <p style="margin:0 0 4px 0; font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif; font-size:12px; font-weight:600; color:${BT_MUTED};">Google Developer Groups on Campus &middot; AKGEC</p>
+    <p style="margin:0; font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif; font-size:11px; color:#6b7685;">Ajay Kumar Garg Engineering College, Ghaziabad</p>
   </div>`;
 
-// ─── Email wrapper ────────────────────────────────────────────────────────────
-export const wrapEmail = (bodyHtml) => `
-  <div style="background-color:${BT_BG}; padding:24px 0; font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;">
-    <div style="max-width:600px; margin:0 auto; background-color:${BT_CONTAINER}; border:1px solid ${BT_BORDER}; border-radius:12px; overflow:hidden; box-shadow:0 10px 36px rgba(0,0,0,0.45);">
-      ${emailHeader()}
+// ─── Email Wrapper ────────────────────────────────────────────────────────────
+export const wrapEmail = (bodyHtml, logoSrc = "cid:byte-talks-logo") => `
+  <div style="background-color:${BT_BG}; padding:28px 12px; font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;">
+    <div style="max-width:580px; margin:0 auto; background-color:${BT_CONTAINER}; border:1px solid ${BT_BORDER}; border-radius:12px; overflow:hidden; box-shadow:0 10px 36px rgba(0,0,0,0.45);">
+      ${emailHeader(logoSrc)}
       ${bodyHtml}
       ${emailFooter()}
     </div>
@@ -67,156 +99,319 @@ export const wrapEmail = (bodyHtml) => `
 // ─── Exported Template Builders (Single Source of Truth) ─────────────────────
 
 // 1. OTP Email Template
-export const buildOtpEmailHtml = (name, otp) => {
+export const buildOtpEmailHtml = (name, otp, logoSrc = "cid:byte-talks-logo") => {
   const body = `
-      <div style="padding:36px 28px;">
-        <div style="text-align:center; margin-bottom:28px;">
-          <span style="display:inline-block; background-color:${BT_PRIMARY_TINT}; color:${BT_PRIMARY}; border:1px solid ${BT_PRIMARY}; padding:8px 22px; border-radius:50px; font-size:13px; font-weight:700; letter-spacing:2px; text-transform:uppercase;">🔐 Email Verification</span>
-        </div>
-        <p style="font-size:16px; color:${BT_TEXT}; margin:0 0 12px 0;">Hi <strong>${name}</strong>,</p>
-        <p style="font-size:15px; color:${BT_MUTED}; line-height:1.7; margin:0 0 28px 0;">
-          Thank you for registering for <strong style="color:${BT_TEXT};">Byte Talks — Alumni Edition</strong>.
-          Use the One-Time Password below to verify your email and complete your registration.
+      <div style="padding:32px 28px;">
+        <p style="font-size:15px; color:#ffffff; font-weight:600; margin:0 0 10px 0;">Hi ${name},</p>
+        <p style="font-size:14px; color:${BT_TEXT_MUTED}; line-height:1.6; margin:0 0 24px 0;">
+          Thank you for registering for <strong>Byte Talks &mdash; Alumni Edition</strong>.
+          Use the one-time verification code below to verify your college email and complete your registration:
         </p>
-        <div style="text-align:center; margin:0 0 28px 0;">
-          <div style="display:inline-block; background-color:${BT_CARD}; border:2px dashed ${BT_PRIMARY}; border-radius:12px; padding:28px 40px;">
-            <p style="margin:0 0 8px 0; font-size:11px; font-weight:700; letter-spacing:3px; text-transform:uppercase; color:${BT_MUTED};">YOUR OTP</p>
-            <span style="font-family:'Arial Black',Arial,sans-serif; font-size:42px; font-weight:900; letter-spacing:14px; color:${BT_PRIMARY};">${otp}</span>
+
+        <!-- Decorated OTP Verification Card -->
+        <div style="background:${BT_CARD}; border:1px solid ${BT_BORDER}; border-radius:12px; padding:28px 20px; text-align:center; margin:0 0 24px 0; box-shadow:0 6px 20px rgba(0,0,0,0.3);">
+          <div style="display:inline-block; background:rgba(9,123,89,0.16); border:1px solid ${BT_PRIMARY}; color:${BT_ACCENT}; font-size:10px; font-weight:800; letter-spacing:2px; text-transform:uppercase; padding:4px 14px; border-radius:12px; margin-bottom:14px;">
+            One-Time Password
+          </div>
+          <div>
+            <span style="font-family:'SF Mono',Consolas,Menlo,Monaco,monospace; font-size:40px; font-weight:800; letter-spacing:12px; color:${BT_ACCENT}; text-shadow:0 0 24px rgba(9,123,89,0.45); margin-left:12px;">${otp}</span>
+          </div>
+          <div style="margin-top:14px; font-size:12px; color:${BT_MUTED};">
+            Valid for <strong>5 minutes</strong> &bull; Single-use verification code
           </div>
         </div>
-        <p style="font-size:13px; color:${BT_MUTED}; text-align:center; margin:0;">⏳ This OTP is valid for <strong style="color:${BT_TEXT};">5 minutes</strong>. Do not share it with anyone.</p>
+
+        <p style="font-size:12px; color:${BT_MUTED}; text-align:center; margin:0;">
+          If you did not initiate this request, you can safely ignore this email.
+        </p>
       </div>`;
-  return wrapEmail(body);
+  return wrapEmail(body, logoSrc);
 };
 
 // 2. Registration Confirmation Template
-export const buildRegistrationEmailHtml = (student, qrCodeSrc = "cid:student-qr-code") => {
+export const buildRegistrationEmailHtml = (
+  student,
+  qrCodeSrc = "cid:student-qr-code",
+  logoSrc = "cid:byte-talks-logo"
+) => {
   const body = `
-      <div style="padding:36px 28px;">
-        <div style="text-align:center; margin-bottom:28px;">
-          <span style="display:inline-block; background-color:${BT_PRIMARY_TINT}; color:${BT_PRIMARY}; border:1px solid ${BT_PRIMARY}; padding:8px 22px; border-radius:50px; font-size:13px; font-weight:700; letter-spacing:2px; text-transform:uppercase;">🎉 Registration Confirmed</span>
-        </div>
-        <p style="font-size:16px; color:${BT_TEXT}; margin:0 0 12px 0;">Hi <strong>${student.name || "Participant"}</strong>,</p>
-        <p style="font-size:15px; color:${BT_MUTED}; line-height:1.7; margin:0 0 28px 0;">
-          You're officially in! 🎤 Your registration for <strong style="color:${BT_TEXT};">Byte Talks — Alumni Edition</strong> has been confirmed.
-          Get ready to <strong style="color:${BT_PRIMARY};">Learn &middot; Connect &middot; Inspire</strong>.
+      <div style="padding:32px 28px;">
+        <p style="font-size:15px; color:#ffffff; font-weight:600; margin:0 0 8px 0;">Hi ${student.name || "Participant"},</p>
+        <p style="font-size:14px; color:${BT_TEXT_MUTED}; line-height:1.6; margin:0 0 22px 0;">
+          Your registration for <strong>Byte Talks &mdash; Alumni Edition</strong> has been confirmed. Below is your event schedule and personal entry pass.
         </p>
 
-        <!-- Event Details -->
-        <div style="background-color:${BT_CARD}; border:1px solid ${BT_BORDER}; border-left:4px solid ${BT_PRIMARY}; border-radius:8px; padding:22px; margin:0 0 22px 0;">
-          <h3 style="margin:0 0 14px 0; font-family:'Arial Black',Arial,sans-serif; font-size:12px; font-weight:900; letter-spacing:3px; text-transform:uppercase; color:${BT_PRIMARY};">&#128205; Event Details</h3>
+        <!-- 3 Quick Event Stat Chips -->
+        <table role="presentation" cellpadding="0" cellspacing="0" style="width:100%; margin-bottom:18px;">
+          <tr>
+            <td style="width:33.33%; padding:0 4px 0 0;">
+              <div style="background:${BT_CARD_HEADER}; border:1px solid ${BT_BORDER}; border-top:2px solid ${BT_PRIMARY}; border-radius:8px; padding:12px 8px; text-align:center;">
+                <div style="font-size:10px; font-weight:700; color:${BT_MUTED}; letter-spacing:1.5px; text-transform:uppercase;">DATE</div>
+                <div style="font-size:13px; font-weight:700; color:#ffffff; margin-top:4px;">30 OCT 2026</div>
+              </div>
+            </td>
+            <td style="width:33.33%; padding:0 2px;">
+              <div style="background:${BT_CARD_HEADER}; border:1px solid ${BT_BORDER}; border-top:2px solid ${BT_PRIMARY}; border-radius:8px; padding:12px 8px; text-align:center;">
+                <div style="font-size:10px; font-weight:700; color:${BT_MUTED}; letter-spacing:1.5px; text-transform:uppercase;">TIME</div>
+                <div style="font-size:13px; font-weight:700; color:#ffffff; margin-top:4px;">10:00 AM – 12:30 PM</div>
+              </div>
+            </td>
+            <td style="width:33.33%; padding:0 0 0 4px;">
+              <div style="background:${BT_CARD_HEADER}; border:1px solid ${BT_BORDER}; border-top:2px solid ${BT_PRIMARY}; border-radius:8px; padding:12px 8px; text-align:center;">
+                <div style="font-size:10px; font-weight:700; color:${BT_MUTED}; letter-spacing:1.5px; text-transform:uppercase;">VENUE</div>
+                <div style="font-size:13px; font-weight:700; color:#ffffff; margin-top:4px;">CSIT SEMINAR HALL</div>
+              </div>
+            </td>
+          </tr>
+        </table>
+
+        <!-- Registered Attendee Card -->
+        <div style="background:${BT_CARD}; border:1px solid ${BT_BORDER}; border-radius:10px; padding:16px 20px; margin-bottom:20px;">
           <table role="presentation" cellpadding="0" cellspacing="0" style="width:100%;">
-            <tr><td style="padding:6px 0; font-size:14px; color:${BT_MUTED}; width:35%;">Date</td><td style="padding:6px 0; font-size:14px; color:${BT_TEXT}; font-weight:700;">30th October, 2026</td></tr>
-            <tr><td style="padding:6px 0; font-size:14px; color:${BT_MUTED};">Venue</td><td style="padding:6px 0; font-size:14px; color:${BT_TEXT}; font-weight:700;">CSIT Seminar Hall</td></tr>
-            <tr><td style="padding:6px 0; font-size:14px; color:${BT_MUTED};">Time</td><td style="padding:6px 0; font-size:14px; color:${BT_TEXT}; font-weight:700;">10:00 AM – 12:30 PM</td></tr>
+            <tr>
+              <td style="vertical-align:middle;">
+                <div style="font-size:10px; font-weight:700; letter-spacing:1.5px; text-transform:uppercase; color:${BT_PRIMARY};">REGISTERED ATTENDEE</div>
+                <div style="font-size:16px; font-weight:700; color:#ffffff; margin-top:3px;">${student.name || "Participant"}</div>
+                <div style="font-size:12px; color:${BT_MUTED}; margin-top:2px;">${student.branch} &bull; AKGEC</div>
+              </td>
+              <td style="vertical-align:middle; text-align:right;">
+                <div style="display:inline-block; background:rgba(9,123,89,0.14); border:1px solid ${BT_PRIMARY}; border-radius:8px; padding:6px 14px; text-align:center;">
+                  <div style="font-size:9px; font-weight:700; letter-spacing:1px; color:${BT_MUTED}; text-transform:uppercase;">STUDENT ID</div>
+                  <div style="font-size:14px; font-weight:800; color:${BT_ACCENT}; font-family:'SF Mono',Consolas,monospace;">${student.studentNumber}</div>
+                </div>
+              </td>
+            </tr>
           </table>
         </div>
 
-        <!-- Student Details -->
-        <div style="background-color:${BT_CARD}; border:1px solid ${BT_BORDER}; border-radius:8px; padding:22px; margin:0 0 22px 0;">
-          <h3 style="margin:0 0 14px 0; font-family:'Arial Black',Arial,sans-serif; font-size:12px; font-weight:900; letter-spacing:3px; text-transform:uppercase; color:${BT_MUTED};">&#128203; Your Details</h3>
-          <table role="presentation" cellpadding="0" cellspacing="0" style="width:100%; border-collapse:collapse; font-size:14px;">
-            <tr style="border-bottom:1px solid ${BT_BORDER};"><td style="padding:10px 0; color:${BT_MUTED};">Name</td><td style="padding:10px 0; color:${BT_TEXT}; font-weight:700; text-align:right;">${student.name || "N/A"}</td></tr>
-            <tr style="border-bottom:1px solid ${BT_BORDER};"><td style="padding:10px 0; color:${BT_MUTED};">Branch</td><td style="padding:10px 0; color:${BT_TEXT}; font-weight:700; text-align:right;">${student.branch}</td></tr>
-            <tr><td style="padding:10px 0; color:${BT_MUTED};">Student ID</td><td style="padding:10px 0; color:${BT_PRIMARY}; font-weight:700; text-align:right;">${student.studentNumber}</td></tr>
-          </table>
-        </div>
-
-        <!-- Embedded Entry QR Code -->
-        <div style="text-align:center; margin:0 0 22px 0; padding:28px 20px; background-color:${BT_CARD}; border:2px dashed ${BT_PRIMARY}; border-radius:12px;">
-          <span style="display:inline-block; background-color:${BT_PRIMARY}; color:#ffffff; padding:6px 18px; border-radius:20px; font-size:11px; font-weight:900; text-transform:uppercase; letter-spacing:2px; margin-bottom:18px;">Entry QR Code</span>
-          <div style="margin:0 auto; width:190px; height:190px; padding:12px; background:#ffffff; border-radius:10px; box-shadow:0 6px 20px rgba(0,0,0,0.35);">
-            <img src="${qrCodeSrc}" alt="Entry QR Code (${student.studentNumber})" width="190" height="190" style="width:100%; height:100%; display:block; border-radius:4px;" />
+        <!-- Official Entry Pass / QR Code Box -->
+        <div style="background:${BT_CARD}; border:1px solid ${BT_BORDER}; border-radius:12px; overflow:hidden; margin-bottom:20px; box-shadow:0 8px 24px rgba(0,0,0,0.35);">
+          <!-- Pass Header Strip -->
+          <div style="background:${BT_CARD_HEADER}; padding:10px 18px; border-bottom:1px solid #282e3d;">
+            <table role="presentation" cellpadding="0" cellspacing="0" style="width:100%;">
+              <tr>
+                <td style="font-size:10px; font-weight:800; letter-spacing:2px; text-transform:uppercase; color:${BT_PRIMARY};">
+                  &bull; OFFICIAL ENTRY PASS
+                </td>
+                <td style="text-align:right; font-size:10px; font-weight:700; letter-spacing:1px; text-transform:uppercase; color:${BT_ACCENT};">
+                  ADMIT ONE
+                </td>
+              </tr>
+            </table>
           </div>
-          <p style="margin:16px 0 4px 0; font-family:'Arial Black',Arial,sans-serif; font-size:15px; font-weight:900; color:${BT_TEXT}; letter-spacing:1px;">
-            STUDENT ID: <span style="color:${BT_PRIMARY};">${student.studentNumber}</span>
-          </p>
-          <p style="font-size:13px; color:${BT_MUTED}; margin:4px 0 0 0; line-height:1.5;">Present this QR code at the registration desk for check-in.</p>
+
+          <div style="padding:24px 20px; text-align:center;">
+            <!-- QR Tile in white rounded frame -->
+            <div style="display:inline-block; padding:12px; background:#ffffff; border-radius:10px; box-shadow:0 6px 20px rgba(0,0,0,0.35);">
+              <img src="${qrCodeSrc}" alt="Entry QR Code" width="165" height="165" style="display:block; width:165px; height:165px;" />
+            </div>
+
+            <!-- Scannable ID Chip -->
+            <div style="margin-top:14px;">
+              <span style="font-family:'SF Mono',Consolas,monospace; font-size:13px; font-weight:800; color:#ffffff; background:#141720; border:1px solid #2b3244; padding:5px 16px; border-radius:20px; letter-spacing:1px;">
+                STUDENT ID: <strong style="color:${BT_ACCENT};">${student.studentNumber}</strong>
+              </span>
+            </div>
+
+            <p style="margin:12px 0 0 0; font-size:12px; color:${BT_MUTED};">
+              Present this QR code at the check-in desk for entry verification.
+            </p>
+          </div>
         </div>
 
-        <!-- Important Instructions -->
-        <div style="background-color:${BT_CARD}; border:1px solid #4a3800; border-left:4px solid #f9a825; border-radius:8px; padding:22px; margin:0 0 22px 0;">
-          <h3 style="margin:0 0 12px 0; font-family:'Arial Black',Arial,sans-serif; font-size:12px; font-weight:900; letter-spacing:3px; text-transform:uppercase; color:#f9a825;">&#9888;&#65039; Important Instructions</h3>
-          <ul style="margin:0; padding-left:18px; color:${BT_MUTED}; font-size:14px; line-height:1.8;">
-            <li style="margin-bottom:6px;">Keep your <strong style="color:${BT_TEXT};">mobile phones on silent mode</strong> during the event.</li>
-            <li style="margin-bottom:6px;">Carry your physical <strong style="color:${BT_TEXT};">college ID card</strong> for verification.</li>
-            <li>Arrive at least <strong style="color:${BT_TEXT};">15 minutes early</strong> to avoid queues.</li>
-          </ul>
+        <!-- Important Guidelines with Numbered Badges -->
+        <div style="background:${BT_CARD}; border:1px solid ${BT_BORDER}; border-radius:10px; padding:18px 20px; margin-bottom:20px;">
+          <div style="font-size:10px; font-weight:800; letter-spacing:2px; text-transform:uppercase; color:${BT_PRIMARY}; margin-bottom:12px;">
+            IMPORTANT GUIDELINES
+          </div>
+          <table role="presentation" cellpadding="0" cellspacing="0" style="width:100%; font-size:13px; color:${BT_TEXT_MUTED};">
+            <tr>
+              <td style="padding:5px 0; vertical-align:top; width:26px;">
+                <span style="display:inline-block; background:rgba(9,123,89,0.2); color:${BT_ACCENT}; font-size:10px; font-weight:800; width:18px; height:18px; line-height:18px; text-align:center; border-radius:50%; border:1px solid ${BT_PRIMARY};">1</span>
+              </td>
+              <td style="padding:5px 0; vertical-align:middle; line-height:1.5;">
+                Carry your physical <strong style="color:#ffffff;">College ID Card</strong> for verification.
+              </td>
+            </tr>
+            <tr>
+              <td style="padding:5px 0; vertical-align:top;">
+                <span style="display:inline-block; background:rgba(9,123,89,0.2); color:${BT_ACCENT}; font-size:10px; font-weight:800; width:18px; height:18px; line-height:18px; text-align:center; border-radius:50%; border:1px solid ${BT_PRIMARY};">2</span>
+              </td>
+              <td style="padding:5px 0; vertical-align:middle; line-height:1.5;">
+                Arrive at the CSIT Seminar Hall by <strong style="color:#ffffff;">9:45 AM</strong> (15 minutes early).
+              </td>
+            </tr>
+            <tr>
+              <td style="padding:5px 0; vertical-align:top;">
+                <span style="display:inline-block; background:rgba(9,123,89,0.2); color:${BT_ACCENT}; font-size:10px; font-weight:800; width:18px; height:18px; line-height:18px; text-align:center; border-radius:50%; border:1px solid ${BT_PRIMARY};">3</span>
+              </td>
+              <td style="padding:5px 0; vertical-align:middle; line-height:1.5;">
+                Keep all mobile devices on <strong style="color:#ffffff;">silent mode</strong> inside the hall.
+              </td>
+            </tr>
+          </table>
         </div>
 
-        <!-- Contact Coordinators -->
-        <div style="background-color:${BT_CARD}; border:1px solid ${BT_BORDER}; border-left:4px solid ${BT_PRIMARY}; border-radius:8px; padding:22px; margin:0;">
-          <h3 style="margin:0 0 12px 0; font-family:'Arial Black',Arial,sans-serif; font-size:12px; font-weight:900; letter-spacing:3px; text-transform:uppercase; color:${BT_PRIMARY};">&#128222; Need Help? Contact Coordinators</h3>
-          <p style="margin:6px 0; font-size:14px; color:${BT_MUTED};"><strong style="color:${BT_TEXT};">Shivansh:</strong> 8115526688</p>
-          <p style="margin:0; font-size:14px; color:${BT_MUTED};"><strong style="color:${BT_TEXT};">Sarika:</strong> 6394316608</p>
+        <!-- Event Coordinators Bar -->
+        <div style="background:${BT_CARD}; border:1px solid ${BT_BORDER}; border-radius:10px; padding:16px 20px; margin:0;">
+          <table role="presentation" cellpadding="0" cellspacing="0" style="width:100%;">
+            <tr>
+              <td style="vertical-align:middle;">
+                <div style="font-size:10px; font-weight:800; letter-spacing:1.5px; text-transform:uppercase; color:${BT_MUTED};">NEED HELP?</div>
+                <div style="font-size:13px; font-weight:600; color:#ffffff; margin-top:2px;">Event Coordinators</div>
+              </td>
+              <td style="vertical-align:middle; text-align:right;">
+                <span style="display:inline-block; background:#161922; border:1px solid ${BT_BORDER}; color:${BT_TEXT}; font-size:12px; font-weight:600; padding:6px 12px; border-radius:6px; margin-right:6px;">Shivansh: <strong style="color:${BT_ACCENT};">8115526688</strong></span>
+                <span style="display:inline-block; background:#161922; border:1px solid ${BT_BORDER}; color:${BT_TEXT}; font-size:12px; font-weight:600; padding:6px 12px; border-radius:6px;">Sarika: <strong style="color:${BT_ACCENT};">6394316608</strong></span>
+              </td>
+            </tr>
+          </table>
         </div>
       </div>`;
-  return wrapEmail(body);
+  return wrapEmail(body, logoSrc);
 };
 
 // 3. Event Reminder Template
-export const buildReminderEmailHtml = (student, qrCodeSrc = "cid:student-qr-code") => {
+export const buildReminderEmailHtml = (
+  student,
+  qrCodeSrc = "cid:student-qr-code",
+  logoSrc = "cid:byte-talks-logo"
+) => {
   const body = `
-      <div style="padding:36px 28px;">
-        <div style="text-align:center; margin-bottom:28px;">
-          <span style="display:inline-block; background-color:rgba(249,168,37,0.12); color:#f9a825; border:1px solid #7a5200; padding:8px 22px; border-radius:50px; font-size:13px; font-weight:700; letter-spacing:2px; text-transform:uppercase;">⏳ Event Reminder</span>
-        </div>
-        <p style="font-size:16px; color:${BT_TEXT}; margin:0 0 12px 0;">Hi <strong>${student.name || "Participant"}</strong>,</p>
-        <p style="font-size:15px; color:${BT_MUTED}; line-height:1.7; margin:0 0 28px 0;">
-          Just a heads-up — <strong style="color:${BT_TEXT};">Byte Talks — Alumni Edition</strong> is almost here! 🎤
-          We can't wait to see you there. Here's everything you need.
+      <div style="padding:32px 28px;">
+        <p style="font-size:15px; color:#ffffff; font-weight:600; margin:0 0 8px 0;">Hi ${student.name || "Participant"},</p>
+        <p style="font-size:14px; color:${BT_TEXT_MUTED}; line-height:1.6; margin:0 0 22px 0;">
+          This is a quick reminder that <strong>Byte Talks &mdash; Alumni Edition</strong> takes place on <strong>Friday, 30th October</strong> at CSIT Seminar Hall. Here is your schedule and entry pass.
         </p>
 
-        <!-- Event Details -->
-        <div style="background-color:${BT_CARD}; border:1px solid ${BT_BORDER}; border-left:4px solid ${BT_PRIMARY}; border-radius:8px; padding:22px; margin:0 0 22px 0;">
-          <h3 style="margin:0 0 14px 0; font-family:'Arial Black',Arial,sans-serif; font-size:12px; font-weight:900; letter-spacing:3px; text-transform:uppercase; color:${BT_PRIMARY};">&#128205; Event Details</h3>
+        <!-- 3 Quick Event Stat Chips -->
+        <table role="presentation" cellpadding="0" cellspacing="0" style="width:100%; margin-bottom:18px;">
+          <tr>
+            <td style="width:33.33%; padding:0 4px 0 0;">
+              <div style="background:${BT_CARD_HEADER}; border:1px solid ${BT_BORDER}; border-top:2px solid ${BT_PRIMARY}; border-radius:8px; padding:12px 8px; text-align:center;">
+                <div style="font-size:10px; font-weight:700; color:${BT_MUTED}; letter-spacing:1.5px; text-transform:uppercase;">DATE</div>
+                <div style="font-size:13px; font-weight:700; color:#ffffff; margin-top:4px;">30 OCT 2026</div>
+              </div>
+            </td>
+            <td style="width:33.33%; padding:0 2px;">
+              <div style="background:${BT_CARD_HEADER}; border:1px solid ${BT_BORDER}; border-top:2px solid ${BT_PRIMARY}; border-radius:8px; padding:12px 8px; text-align:center;">
+                <div style="font-size:10px; font-weight:700; color:${BT_MUTED}; letter-spacing:1.5px; text-transform:uppercase;">TIME</div>
+                <div style="font-size:13px; font-weight:700; color:#ffffff; margin-top:4px;">10:00 AM – 12:30 PM</div>
+              </div>
+            </td>
+            <td style="width:33.33%; padding:0 0 0 4px;">
+              <div style="background:${BT_CARD_HEADER}; border:1px solid ${BT_BORDER}; border-top:2px solid ${BT_PRIMARY}; border-radius:8px; padding:12px 8px; text-align:center;">
+                <div style="font-size:10px; font-weight:700; color:${BT_MUTED}; letter-spacing:1.5px; text-transform:uppercase;">VENUE</div>
+                <div style="font-size:13px; font-weight:700; color:#ffffff; margin-top:4px;">CSIT SEMINAR HALL</div>
+              </div>
+            </td>
+          </tr>
+        </table>
+
+        <!-- Registered Attendee Card -->
+        <div style="background:${BT_CARD}; border:1px solid ${BT_BORDER}; border-radius:10px; padding:16px 20px; margin-bottom:20px;">
           <table role="presentation" cellpadding="0" cellspacing="0" style="width:100%;">
-            <tr><td style="padding:6px 0; font-size:14px; color:${BT_MUTED}; width:35%;">Date</td><td style="padding:6px 0; font-size:14px; color:${BT_TEXT}; font-weight:700;">30th October, 2026</td></tr>
-            <tr><td style="padding:6px 0; font-size:14px; color:${BT_MUTED};">Venue</td><td style="padding:6px 0; font-size:14px; color:${BT_TEXT}; font-weight:700;">CSIT Seminar Hall</td></tr>
-            <tr><td style="padding:6px 0; font-size:14px; color:${BT_MUTED};">Time</td><td style="padding:6px 0; font-size:14px; color:${BT_TEXT}; font-weight:700;">10:00 AM – 12:30 PM</td></tr>
+            <tr>
+              <td style="vertical-align:middle;">
+                <div style="font-size:10px; font-weight:700; letter-spacing:1.5px; text-transform:uppercase; color:${BT_PRIMARY};">REGISTERED ATTENDEE</div>
+                <div style="font-size:16px; font-weight:700; color:#ffffff; margin-top:3px;">${student.name || "Participant"}</div>
+                <div style="font-size:12px; color:${BT_MUTED}; margin-top:2px;">${student.branch} &bull; AKGEC</div>
+              </td>
+              <td style="vertical-align:middle; text-align:right;">
+                <div style="display:inline-block; background:rgba(9,123,89,0.14); border:1px solid ${BT_PRIMARY}; border-radius:8px; padding:6px 14px; text-align:center;">
+                  <div style="font-size:9px; font-weight:700; letter-spacing:1px; color:${BT_MUTED}; text-transform:uppercase;">STUDENT ID</div>
+                  <div style="font-size:14px; font-weight:800; color:${BT_ACCENT}; font-family:'SF Mono',Consolas,monospace;">${student.studentNumber}</div>
+                </div>
+              </td>
+            </tr>
           </table>
         </div>
 
-        <!-- Student Details -->
-        <div style="background-color:${BT_CARD}; border:1px solid ${BT_BORDER}; border-radius:8px; padding:22px; margin:0 0 22px 0;">
-          <h3 style="margin:0 0 14px 0; font-family:'Arial Black',Arial,sans-serif; font-size:12px; font-weight:900; letter-spacing:3px; text-transform:uppercase; color:${BT_MUTED};">&#128203; Your Details</h3>
-          <table role="presentation" cellpadding="0" cellspacing="0" style="width:100%; border-collapse:collapse; font-size:14px;">
-            <tr style="border-bottom:1px solid ${BT_BORDER};"><td style="padding:10px 0; color:${BT_MUTED};">Name</td><td style="padding:10px 0; color:${BT_TEXT}; font-weight:700; text-align:right;">${student.name || "N/A"}</td></tr>
-            <tr style="border-bottom:1px solid ${BT_BORDER};"><td style="padding:10px 0; color:${BT_MUTED};">Branch</td><td style="padding:10px 0; color:${BT_TEXT}; font-weight:700; text-align:right;">${student.branch}</td></tr>
-            <tr><td style="padding:10px 0; color:${BT_MUTED};">Student ID</td><td style="padding:10px 0; color:${BT_PRIMARY}; font-weight:700; text-align:right;">${student.studentNumber}</td></tr>
-          </table>
-        </div>
-
-        <!-- Embedded Entry QR Code -->
-        <div style="text-align:center; margin:0 0 22px 0; padding:28px 20px; background-color:${BT_CARD}; border:2px dashed ${BT_PRIMARY}; border-radius:12px;">
-          <span style="display:inline-block; background-color:${BT_PRIMARY}; color:#ffffff; padding:6px 18px; border-radius:20px; font-size:11px; font-weight:900; text-transform:uppercase; letter-spacing:2px; margin-bottom:18px;">Entry QR Code</span>
-          <div style="margin:0 auto; width:190px; height:190px; padding:12px; background:#ffffff; border-radius:10px; box-shadow:0 6px 20px rgba(0,0,0,0.35);">
-            <img src="${qrCodeSrc}" alt="Entry QR Code (${student.studentNumber})" width="190" height="190" style="width:100%; height:100%; display:block; border-radius:4px;" />
+        <!-- Official Entry Pass / QR Code Box -->
+        <div style="background:${BT_CARD}; border:1px solid ${BT_BORDER}; border-radius:12px; overflow:hidden; margin-bottom:20px; box-shadow:0 8px 24px rgba(0,0,0,0.35);">
+          <!-- Pass Header Strip -->
+          <div style="background:${BT_CARD_HEADER}; padding:10px 18px; border-bottom:1px solid #282e3d;">
+            <table role="presentation" cellpadding="0" cellspacing="0" style="width:100%;">
+              <tr>
+                <td style="font-size:10px; font-weight:800; letter-spacing:2px; text-transform:uppercase; color:${BT_PRIMARY};">
+                  &bull; OFFICIAL ENTRY PASS
+                </td>
+                <td style="text-align:right; font-size:10px; font-weight:700; letter-spacing:1px; text-transform:uppercase; color:${BT_ACCENT};">
+                  ADMIT ONE
+                </td>
+              </tr>
+            </table>
           </div>
-          <p style="margin:16px 0 4px 0; font-family:'Arial Black',Arial,sans-serif; font-size:15px; font-weight:900; color:${BT_TEXT}; letter-spacing:1px;">
-            STUDENT ID: <span style="color:${BT_PRIMARY};">${student.studentNumber}</span>
-          </p>
-          <p style="font-size:13px; color:${BT_MUTED}; margin:4px 0 0 0; line-height:1.5;">Present this QR code at the registration desk for check-in.</p>
+
+          <div style="padding:24px 20px; text-align:center;">
+            <!-- QR Tile in white rounded frame -->
+            <div style="display:inline-block; padding:12px; background:#ffffff; border-radius:10px; box-shadow:0 6px 20px rgba(0,0,0,0.35);">
+              <img src="${qrCodeSrc}" alt="Entry QR Code" width="165" height="165" style="display:block; width:165px; height:165px;" />
+            </div>
+
+            <!-- Scannable ID Chip -->
+            <div style="margin-top:14px;">
+              <span style="font-family:'SF Mono',Consolas,monospace; font-size:13px; font-weight:800; color:#ffffff; background:#141720; border:1px solid #2b3244; padding:5px 16px; border-radius:20px; letter-spacing:1px;">
+                STUDENT ID: <strong style="color:${BT_ACCENT};">${student.studentNumber}</strong>
+              </span>
+            </div>
+
+            <p style="margin:12px 0 0 0; font-size:12px; color:${BT_MUTED};">
+              Present this QR code at the check-in desk for entry verification.
+            </p>
+          </div>
         </div>
 
-        <!-- Important Instructions -->
-        <div style="background-color:${BT_CARD}; border:1px solid #4a3800; border-left:4px solid #f9a825; border-radius:8px; padding:22px; margin:0 0 22px 0;">
-          <h3 style="margin:0 0 12px 0; font-family:'Arial Black',Arial,sans-serif; font-size:12px; font-weight:900; letter-spacing:3px; text-transform:uppercase; color:#f9a825;">&#9888;&#65039; Important Instructions</h3>
-          <ul style="margin:0; padding-left:18px; color:${BT_MUTED}; font-size:14px; line-height:1.8;">
-            <li style="margin-bottom:6px;">Keep your <strong style="color:${BT_TEXT};">mobile phones on silent mode</strong> during the event.</li>
-            <li style="margin-bottom:6px;">Carry your physical <strong style="color:${BT_TEXT};">college ID card</strong> for verification.</li>
-            <li>Arrive at least <strong style="color:${BT_TEXT};">15 minutes early</strong> to avoid queues.</li>
-          </ul>
+        <!-- Important Guidelines with Numbered Badges -->
+        <div style="background:${BT_CARD}; border:1px solid ${BT_BORDER}; border-radius:10px; padding:18px 20px; margin-bottom:20px;">
+          <div style="font-size:10px; font-weight:800; letter-spacing:2px; text-transform:uppercase; color:${BT_PRIMARY}; margin-bottom:12px;">
+            IMPORTANT GUIDELINES
+          </div>
+          <table role="presentation" cellpadding="0" cellspacing="0" style="width:100%; font-size:13px; color:${BT_TEXT_MUTED};">
+            <tr>
+              <td style="padding:5px 0; vertical-align:top; width:26px;">
+                <span style="display:inline-block; background:rgba(9,123,89,0.2); color:${BT_ACCENT}; font-size:10px; font-weight:800; width:18px; height:18px; line-height:18px; text-align:center; border-radius:50%; border:1px solid ${BT_PRIMARY};">1</span>
+              </td>
+              <td style="padding:5px 0; vertical-align:middle; line-height:1.5;">
+                Carry your physical <strong style="color:#ffffff;">College ID Card</strong> for verification.
+              </td>
+            </tr>
+            <tr>
+              <td style="padding:5px 0; vertical-align:top;">
+                <span style="display:inline-block; background:rgba(9,123,89,0.2); color:${BT_ACCENT}; font-size:10px; font-weight:800; width:18px; height:18px; line-height:18px; text-align:center; border-radius:50%; border:1px solid ${BT_PRIMARY};">2</span>
+              </td>
+              <td style="padding:5px 0; vertical-align:middle; line-height:1.5;">
+                Arrive at the CSIT Seminar Hall by <strong style="color:#ffffff;">9:45 AM</strong> (15 minutes early).
+              </td>
+            </tr>
+            <tr>
+              <td style="padding:5px 0; vertical-align:top;">
+                <span style="display:inline-block; background:rgba(9,123,89,0.2); color:${BT_ACCENT}; font-size:10px; font-weight:800; width:18px; height:18px; line-height:18px; text-align:center; border-radius:50%; border:1px solid ${BT_PRIMARY};">3</span>
+              </td>
+              <td style="padding:5px 0; vertical-align:middle; line-height:1.5;">
+                Keep all mobile devices on <strong style="color:#ffffff;">silent mode</strong> inside the hall.
+              </td>
+            </tr>
+          </table>
         </div>
 
-        <!-- Contact Coordinators -->
-        <div style="background-color:${BT_CARD}; border:1px solid ${BT_BORDER}; border-left:4px solid ${BT_PRIMARY}; border-radius:8px; padding:22px; margin:0;">
-          <h3 style="margin:0 0 12px 0; font-family:'Arial Black',Arial,sans-serif; font-size:12px; font-weight:900; letter-spacing:3px; text-transform:uppercase; color:${BT_PRIMARY};">&#128222; Need Help? Contact Coordinators</h3>
-          <p style="margin:6px 0; font-size:14px; color:${BT_MUTED};"><strong style="color:${BT_TEXT};">Shivansh:</strong> 8115526688</p>
-          <p style="margin:0; font-size:14px; color:${BT_MUTED};"><strong style="color:${BT_TEXT};">Sarika:</strong> 6394316608</p>
+        <!-- Event Coordinators Bar -->
+        <div style="background:${BT_CARD}; border:1px solid ${BT_BORDER}; border-radius:10px; padding:16px 20px; margin:0;">
+          <table role="presentation" cellpadding="0" cellspacing="0" style="width:100%;">
+            <tr>
+              <td style="vertical-align:middle;">
+                <div style="font-size:10px; font-weight:800; letter-spacing:1.5px; text-transform:uppercase; color:${BT_MUTED};">NEED HELP?</div>
+                <div style="font-size:13px; font-weight:600; color:#ffffff; margin-top:2px;">Event Coordinators</div>
+              </td>
+              <td style="vertical-align:middle; text-align:right;">
+                <span style="display:inline-block; background:#161922; border:1px solid ${BT_BORDER}; color:${BT_TEXT}; font-size:12px; font-weight:600; padding:6px 12px; border-radius:6px; margin-right:6px;">Shivansh: <strong style="color:${BT_ACCENT};">8115526688</strong></span>
+                <span style="display:inline-block; background:#161922; border:1px solid ${BT_BORDER}; color:${BT_TEXT}; font-size:12px; font-weight:600; padding:6px 12px; border-radius:6px;">Sarika: <strong style="color:${BT_ACCENT};">6394316608</strong></span>
+              </td>
+            </tr>
+          </table>
         </div>
       </div>`;
-  return wrapEmail(body);
+  return wrapEmail(body, logoSrc);
 };
 
 // ==========================================
@@ -231,8 +426,15 @@ export const sendOtpEmail = async (email, name, otp) => {
     const mailOptions = {
       from: `"Byte Talks 2026" <${process.env.EMAIL_USER || process.env.EMAIL_USERNAME}>`,
       to: email,
-      subject: "🔐 Action Required: Your OTP for Byte Talks 2026 Registration",
-      html: buildOtpEmailHtml(name, otp),
+      subject: "Byte Talks 2026 — Verification Code",
+      html: buildOtpEmailHtml(name, otp, "cid:byte-talks-logo"),
+      attachments: [
+        {
+          filename: "byte-talks-logo.png",
+          path: LOGO_PATH,
+          cid: "byte-talks-logo",
+        },
+      ],
     };
 
     await transporter.sendMail(mailOptions);
@@ -254,9 +456,14 @@ export const sendRegisterationEmail = async (student) => {
     const mailOptions = {
       from: `"Byte Talks 2026" <${process.env.EMAIL_USER || process.env.EMAIL_USERNAME}>`,
       to: student.email,
-      subject: "🎉 You're In! Your Entry QR Code for Byte Talks 2026 — Alumni Edition",
-      html: buildRegistrationEmailHtml(student, "cid:student-qr-code"),
+      subject: "Registration Confirmed — Byte Talks 2026",
+      html: buildRegistrationEmailHtml(student, "cid:student-qr-code", "cid:byte-talks-logo"),
       attachments: [
+        {
+          filename: "byte-talks-logo.png",
+          path: LOGO_PATH,
+          cid: "byte-talks-logo",
+        },
         {
           filename: `ByteTalks-QR-${student.studentNumber || "entry"}.png`,
           content: qrBuffer,
@@ -284,9 +491,14 @@ export const sendReminderEmail = async (student) => {
     const mailOptions = {
       from: `"Byte Talks 2026" <${process.env.EMAIL_USER || process.env.EMAIL_USERNAME}>`,
       to: student.email,
-      subject: "📢 Reminder: Byte Talks — Alumni Edition is Almost Here!",
-      html: buildReminderEmailHtml(student, "cid:student-qr-code"),
+      subject: "Event Reminder — Byte Talks 2026",
+      html: buildReminderEmailHtml(student, "cid:student-qr-code", "cid:byte-talks-logo"),
       attachments: [
+        {
+          filename: "byte-talks-logo.png",
+          path: LOGO_PATH,
+          cid: "byte-talks-logo",
+        },
         {
           filename: `ByteTalks-QR-${student.studentNumber || "entry"}.png`,
           content: qrBuffer,
