@@ -94,7 +94,7 @@ export const sendRegistrationOtp = async (req, res, next) => {
       stripUnknown: true,
     });
 
-    let { email, name, studentNumber, captchaToken, gender, residence } = value;
+    let { email, name, studentNumber, captchaToken, gender, residence, phone } = value;
 
     if (gender === "Female" && residence === "Hosteller") {
       const deadline = new Date("2026-10-30T16:00:00+05:30");
@@ -118,14 +118,24 @@ export const sendRegistrationOtp = async (req, res, next) => {
     // email = email.trim().toLowerCase();
     email = normalizeEmail(email);
 
+    const duplicateConditions = [{ email }, { studentNumber }];
+    if (phone) {
+      duplicateConditions.push({ phone });
+    }
+
     const existingUser = await Registration.findOne({
-      $or: [{ email }, { studentNumber }],
+      $or: duplicateConditions,
     });
 
     if (existingUser) {
+      let message = "Already registered";
+      if (phone && existingUser.phone === phone) {
+        message = "Mobile number is already registered";
+      }
+
       return res.status(409).json({
         success: false,
-        message: "Already registered",
+        message,
       });
     }
 
@@ -284,9 +294,14 @@ export const registerStudent = async (req, res, next) => {
       });
 
     if (existing) {
+      let message = "Already registered";
+      if (existing.phone === value.phone) {
+        message = "Mobile number is already registered";
+      }
+
       return res.status(409).json({
         success: false,
-        message: "Already registered",
+        message,
       });
     }
 

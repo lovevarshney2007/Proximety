@@ -102,6 +102,7 @@ const sendOtpValidation = Joi.object({
   captchaToken: Joi.string().allow('', null).optional(),
   gender: Joi.string().valid("Male", "Female").optional(),
   residence: Joi.string().valid("Hosteller", "Day Scholar").optional(),
+  phone: registrationValidation.extract("phone").optional(),
 });
 
 export { registrationValidation, sendOtpValidation };

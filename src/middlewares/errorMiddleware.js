@@ -12,8 +12,13 @@ const errorMiddleware = (err, req, res, next) => {
 
   // 2. Mongoose Duplicate Key Error
   if (err.code === 11000) {
-    message = "Already registered";
     statusCode = 409;
+    const duplicateField = Object.keys(err.keyPattern || err.keyValue || {})[0];
+    if (duplicateField === "phone" || (err.message && err.message.includes("phone"))) {
+      message = "Mobile number is already registered";
+    } else {
+      message = "Already registered";
+    }
   }
 
   // 3. Mongoose Validation Error 
