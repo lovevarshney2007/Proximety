@@ -1,8 +1,24 @@
 import express from "express";
 import { sendRegistrationOtp, verifyOtp, registerStudent } from "../controllers/registrationController.js";
-import { checkIpBlacklist, authLimiter, strictRegistrationLimiter as registerLimiter } from "../middlewares/securityLimiters.js";
-import { blockIpManually, unblockIp, markAttendance, getAllUsers, getAllBlockedIps, clearAllBlockedIps, getStats, sendEventReminders, resendSingleReminder } from "../controllers/adminController.js";
+import {
+  checkIpBlacklist,
+  sendOtpLimiter,
+  verifyOtpLimiter,
+  strictRegistrationLimiter as registerLimiter,
+} from "../middlewares/securityLimiters.js";
+import {
+  blockIpManually,
+  unblockIp,
+  markAttendance,
+  getAllUsers,
+  getAllBlockedIps,
+  clearAllBlockedIps,
+  getStats,
+  sendEventReminders,
+  resendSingleReminder,
+} from "../controllers/adminController.js";
 import adminAuth from "../middlewares/adminAuth.js";
+
 const router = express.Router();
 
 // Admin Routes
@@ -16,13 +32,12 @@ router.get("/admin/blocked-ips", adminAuth, getAllBlockedIps);
 router.delete("/admin/clear-all-blocked-ips", adminAuth, clearAllBlockedIps);
 router.get("/admin/stats", adminAuth, getStats);
 
-
+// Public IP Blacklist Guard
 router.use(checkIpBlacklist);
 
-router.post("/send-otp", authLimiter, sendRegistrationOtp);
-router.post("/verify-otp", authLimiter, verifyOtp);
+// Public Registration Routes with Dedicated Limiters
+router.post("/send-otp", sendOtpLimiter, sendRegistrationOtp);
+router.post("/verify-otp", verifyOtpLimiter, verifyOtp);
 router.post("/register", registerLimiter, registerStudent);
-
-
 
 export default router;

@@ -1,6 +1,7 @@
 import { Otp } from "../models/otpModel.js";
 
 const normalizeEmail = (email = "") => email.trim().toLowerCase();
+const OTP_EXPIRY_MS = 5 * 60 * 1000; // 5 minutes strict TTL
 
 export const checkCooldown = async (email) => {
   const normalized = normalizeEmail(email);
@@ -15,7 +16,7 @@ export const checkCooldown = async (email) => {
 export const storeOtp = async (email, studentNumber, otp) => {
   const normalized = normalizeEmail(email);
   const now = new Date();
-  const cooldownUntil = new Date(now.getTime() + 60 * 1000);
+  const cooldownUntil = new Date(now.getTime() + 60 * 1000); // 60s cooldown
 
   await Otp.findOneAndUpdate(
     { email: normalized },
@@ -37,6 +38,15 @@ export const verifyOtpInRedis = async (email, otp, maxAttempts = 5) => {
 
   if (!record) {
     return { success: false, message: "OTP expired or invalid" };
+  }
+
+  // Strict 5-minute expiry validation
+  if (record.createdAt && Date.now() - record.createdAt.getTime() > OTP_EXPIRY_MS) {
+    await Otp.deleteOne({ email: normalized });
+    return {
+      success: false,
+      message: "OTP has expired. Please request a new OTP.",
+    };
   }
 
   record.attempts = (record.attempts || 0) + 1;
@@ -67,7 +77,15 @@ export const verifyOtpInRedis = async (email, otp, maxAttempts = 5) => {
 export const isOtpVerified = async (email) => {
   const normalized = normalizeEmail(email);
   const record = await Otp.findOne({ email: normalized, isVerified: true });
-  return Boolean(record);
+  if (!record) return false;
+
+  // Verified state also expires if older than 15 minutes without final registration
+  if (record.createdAt && Date.now() - record.createdAt.getTime() > 15 * 60 * 1000) {
+    await Otp.deleteOne({ email: normalized });
+    return false;
+  }
+
+  return true;
 };
 
 export const clearVerification = async (email) => {

@@ -12,21 +12,34 @@ const cleanIpsCache = new Map(); // key: ip, value: expireTimestamp
 const CLEAN_IP_TTL_MS = 5 * 60 * 1000; // 5 minutes cache for clean IPs
 const MAX_CACHE_SIZE = 5000; // Protect memory against distributed random IP attacks
 
-// In-memory violation attempt counter per IP/key
+// In-memory violation attempt counter per IP/key with sliding TTL window
+// Stores: key -> { count: number, firstSeen: timestamp }
 const violationCounts = new Map();
+const VIOLATION_WINDOW_MS = 10 * 60 * 1000; // 10 minutes sliding window
 
 const getClientIp = (req) => req.ip || req.socket?.remoteAddress || req.connection?.remoteAddress || "unknown_ip";
 
 const cleanupCacheIfFull = () => {
+  const now = Date.now();
   if (cleanIpsCache.size >= MAX_CACHE_SIZE) {
-    const now = Date.now();
     for (const [ip, expireAt] of cleanIpsCache.entries()) {
       if (expireAt <= now) {
         cleanIpsCache.delete(ip);
       }
     }
     if (cleanIpsCache.size >= MAX_CACHE_SIZE) {
-      cleanIpsCache.clear(); // Emergency flush if still full
+      cleanIpsCache.clear();
+    }
+  }
+
+  if (violationCounts.size >= MAX_CACHE_SIZE) {
+    for (const [key, val] of violationCounts.entries()) {
+      if (now - val.firstSeen > VIOLATION_WINDOW_MS) {
+        violationCounts.delete(key);
+      }
+    }
+    if (violationCounts.size >= MAX_CACHE_SIZE) {
+      violationCounts.clear();
     }
   }
 };
@@ -97,15 +110,23 @@ export const checkIpBlacklist = async (req, res, next) => {
 const handleThrottledRateLimitViolation = (req, res, options, eventType, maxAttemptsForBlock, reason, customKey = null) => {
   const clientIp = getClientIp(req);
   const trackerKey = customKey || `${clientIp}_${eventType}`;
+  const now = Date.now();
 
   // 1. Send HTTP 429 response IMMEDIATELY without waiting for database operations
   res.status(options.statusCode).json({ success: false, message: options.message });
 
-  // 2. Track violation in memory
-  const currentCount = (violationCounts.get(trackerKey) || 0) + 1;
-  violationCounts.set(trackerKey, currentCount);
+  // 2. Track violation in memory with sliding 10-minute window (protects shared campus Wi-Fi)
+  cleanupCacheIfFull();
+  let violationData = violationCounts.get(trackerKey);
+  if (!violationData || now - violationData.firstSeen > VIOLATION_WINDOW_MS) {
+    violationData = { count: 1, firstSeen: now };
+  } else {
+    violationData.count += 1;
+  }
+  violationCounts.set(trackerKey, violationData);
+  const currentCount = violationData.count;
 
-  // 3. Auto-block immediately in memory if threshold crossed
+  // 3. Auto-block immediately in memory if burst threshold crossed within the 10-minute window
   if (currentCount >= maxAttemptsForBlock) {
     if (!blockedIpsCache.has(clientIp)) {
       blockedIpsCache.add(clientIp);
@@ -114,11 +135,11 @@ const handleThrottledRateLimitViolation = (req, res, options, eventType, maxAtte
       // Background DB block write (fire-and-forget)
       BlockedIp.findOneAndUpdate(
         { ipAddress: clientIp },
-        { ipAddress: clientIp, reason: reason || `Auto-blocked: Exceeded ${maxAttemptsForBlock}+ rate limit violations (${eventType})` },
+        { ipAddress: clientIp, reason: reason || `Auto-blocked: Exceeded ${maxAttemptsForBlock}+ rapid violations (${eventType}) within 10 minutes` },
         { upsert: true }
       ).catch(err => console.error(`Async Auto-block Error for ${clientIp}:`, err.message));
       
-      console.log(`🚨 DANGER: IP ${clientIp} permanently auto-blocked in memory and DB after ${currentCount} attempts!`);
+      console.log(`🚨 DANGER: IP ${clientIp} permanently auto-blocked after ${currentCount} rapid violations within window!`);
     }
   }
 
@@ -130,7 +151,7 @@ const handleThrottledRateLimitViolation = (req, res, options, eventType, maxAtte
         $inc: { attemptCount: currentCount === 1 ? 1 : 5 },
         $set: {
           endpoint: req.originalUrl,
-          details: { limit: options.max, window: options.windowMs, currentCount },
+          details: { limit: options.max, window: options.windowMs, currentCount, windowMs: VIOLATION_WINDOW_MS },
           payload: safePayload(req.body),
         }
       },
@@ -140,68 +161,89 @@ const handleThrottledRateLimitViolation = (req, res, options, eventType, maxAtte
 };
 
 // ===============================
-//  GLOBAL RATE LIMITER
+//  GLOBAL RATE LIMITER (All /api/* routes)
+//  Allows 1000 requests per 15 min per IP to prevent college Wi-Fi false-positives
 // ===============================
 export const globalLimiter = rateLimit({
-    windowMs: 15 * 60 * 1000,
-    max: 500, 
-    message: "Too many general requests from this IP, please try again later or switch to another network.",
-    standardHeaders: true,
-    legacyHeaders: false,
+  windowMs: 15 * 60 * 1000,
+  max: 1000, 
+  message: "Too many requests from this network. Please try again in a few minutes or switch networks.",
+  standardHeaders: true,
+  legacyHeaders: false,
 });
 
 // ===============================
-//  AUTH RATE LIMITER
+//  SEND OTP LIMITER (POST /api/v1/send-otp)
+//  Protects email SMTP sending quota while allowing ~50 registrations per 15 min per shared campus IP
 // ===============================
-export const authLimiter = rateLimit({
-    windowMs: 30 * 60 * 1000,
-    max: 80, 
-    message: "Too many attempts. Please try again later or switch to another network.",
-    standardHeaders: true,
-    legacyHeaders: false,
-    handler: (req, res, next, options) => {
-        handleThrottledRateLimitViolation(
-            req, 
-            res, 
-            options, 
-            'AUTH_RATE_LIMIT_BLOCK', 
-            50, 
-            "Auto-blocked: Exceeded 50+ auth rate limit violations"
-        );
-    }
+export const sendOtpLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 50, 
+  message: "Too many OTP requests from this network. Please wait a few minutes or switch networks.",
+  standardHeaders: true,
+  legacyHeaders: false,
+  handler: (req, res, next, options) => {
+    handleThrottledRateLimitViolation(
+      req, 
+      res, 
+      options, 
+      'AUTH_RATE_LIMIT_BLOCK', 
+      30, 
+      "Auto-blocked: Exceeded 30+ rapid OTP spam attempts within 10 minutes"
+    );
+  }
 });
 
 // ===============================
-//  STRICT REGISTRATION LIMITER
+//  VERIFY OTP LIMITER (POST /api/v1/verify-otp)
+//  Pure DB lookup without SMTP cost; already protected by MAX_OTP_ATTEMPTS=5 per email
+// ===============================
+export const verifyOtpLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 100, 
+  message: "Too many OTP verification attempts. Please wait a few minutes or switch networks.",
+  standardHeaders: true,
+  legacyHeaders: false,
+  handler: (req, res, next, options) => {
+    res.status(options.statusCode).json({ success: false, message: options.message });
+  }
+});
+
+// Backward compatibility alias: authLimiter -> sendOtpLimiter
+export const authLimiter = sendOtpLimiter;
+
+// ===============================
+//  STRICT REGISTRATION LIMITER (POST /api/v1/register)
+//  Guards final submission (requires OTP verification first)
 // ===============================
 export const strictRegistrationLimiter = rateLimit({
-    windowMs: 30 * 60 * 1000,
-    max: 100, 
-    message: "Too many registration attempts. Please try again later or switch to another network.",
-    standardHeaders: true,
-    legacyHeaders: false,
-    handler: (req, res, next, options) => {
-        handleThrottledRateLimitViolation(
-            req, 
-            res, 
-            options, 
-            'RATE_LIMIT_BLOCK', 
-            150, 
-            "Auto-blocked: Exceeded 150+ registration spam attempts"
-        );
-    }
+  windowMs: 15 * 60 * 1000,
+  max: 80, 
+  message: "Too many registration attempts from this network. Please try again in a few minutes.",
+  standardHeaders: true,
+  legacyHeaders: false,
+  handler: (req, res, next, options) => {
+    handleThrottledRateLimitViolation(
+      req, 
+      res, 
+      options, 
+      'RATE_LIMIT_BLOCK', 
+      50, 
+      "Auto-blocked: Exceeded 50+ rapid registration spam attempts within 10 minutes"
+    );
+  }
 });
 
 // ===============================
 //  CHATBOT LIMITER
 // ===============================
 export const chatbotLimiter = rateLimit({
-    windowMs: 5 * 60 * 1000,
-    max: 100, 
-    message: "You are chatting too fast! Please wait a moment.",
-    standardHeaders: true,
-    legacyHeaders: false,
-    handler: (req, res, next, options) => {
-        res.status(options.statusCode).json({ success: false, message: options.message });
-    }
+  windowMs: 5 * 60 * 1000,
+  max: 100, 
+  message: "You are chatting too fast! Please wait a moment.",
+  standardHeaders: true,
+  legacyHeaders: false,
+  handler: (req, res, next, options) => {
+    res.status(options.statusCode).json({ success: false, message: options.message });
+  }
 });

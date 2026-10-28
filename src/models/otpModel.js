@@ -27,7 +27,7 @@ const otpSchema = new mongoose.Schema({
   createdAt: {
     type: Date,
     default: Date.now,
-    expires: 900, // MongoDB native TTL index — auto-expires in 15 minutes
+    expires: 300, // MongoDB native TTL index — auto-expires in 5 minutes (300 seconds)
   },
   cooldownUntil: {
     type: Date,

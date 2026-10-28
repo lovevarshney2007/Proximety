@@ -130,11 +130,14 @@ The system features a 2-step secure registration process (College Email OTP Veri
 
 IP blocking is enforced exclusively on public routes. Admin routes are whitelisted.
 
-| Route / Limiter | Window | Limit | Auto-Ban Action |
+| Route / Limiter | Window | Limit | Auto-Ban / Protection Action |
 | :--- | :--- | :--- | :--- |
-| **Global (`/api/*`)** | 15 mins | 50 requests | `429 Too Many Requests` |
-| **Auth (`/send-otp`, `/verify-otp`)** | 30 mins | 20 requests | Blocked permanently after **10 violations** |
-| **Registration (`/register`)** | 60 mins | 30 requests | Blocked permanently after **50 violations** |
+| **Global (`/api/*`)** | 15 mins | 1000 requests | `429 Too Many Requests` (tuned for shared campus Wi-Fi) |
+| **Send OTP (`/send-otp`)** | 15 mins | 50 requests | Auto-blocked if > 30 rapid spam attempts within 10-min window |
+| **Verify OTP (`/verify-otp`)** | 15 mins | 100 requests | `429 Too Many Requests` (Plus max 5 failed tries per email) |
+| **Registration (`/register`)** | 15 mins | 80 requests | Auto-blocked if > 50 rapid spam attempts within 10-min window |
+| **OTP Resend Cooldown** | 60 secs | 1 request per email | Returns remaining seconds until unlocked |
+| **OTP Expiration (TTL)** | 5 mins | Auto-expired | Purged from DB (`expires: 300`) and checked at runtime |
 | **Blacklisted IP Check** | Instant | 0 requests | `403 Access Denied` for blacklisted IPs |
 
 ---
