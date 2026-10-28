@@ -110,7 +110,7 @@ async function removeWhiteBackground(filePath, threshold = 228) {
 const EVENT_INFO = {
   venue: "CSIT Seminar Hall",
   date:  "30 October 2026 (Friday)",
-  time:  "4:00 PM – 8:00 PM",
+  time:  "10:00 AM – 12:30 PM",
 };
 
 /**
