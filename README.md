@@ -216,3 +216,8 @@ ADMIN_API_KEY=your_secure_admin_api_key
    ```bash
    npm run pm2:start
    ```
+
+---
+
+*Maintained by GDG On Campus AKGEC.*
+
