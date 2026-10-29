@@ -22,7 +22,7 @@ The system features a 2-step secure registration process (College Email OTP Veri
 - **📧 Redesigned Responsive Emails & Embedded Student QR Codes:**
   - Custom email templates built with the brand color palette: **#097b59** (emerald green accent) and **#1d212c** (dark slate container base).
   - Event Timing: **10:00 AM to 12:30 PM** (30th October, 2026 · CSIT Seminar Hall).
-  - Event Coordinators: **Shivansh (8115526688)** & **Sarika (6394316608)**.
+  - Event Coordinator: **Shivansh (8115526688)**.
   - Three distinct email pipelines:
     1. **🔐 OTP Verification Email** — Clean one-time password card with 5-minute expiry notice.
     2. **🎉 Registration Confirmation Email** — Contains participant profile details, venue guidelines, and a high-contrast embedded entry QR code encoded with the participant's student number.
