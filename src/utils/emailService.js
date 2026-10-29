@@ -281,142 +281,153 @@ export const buildRegistrationEmailHtml = (
 
 // 3. Event Reminder Template
 export const buildReminderEmailHtml = (
-  student,
-  qrCodeSrc = "cid:student-qr-code",
-  logoSrc = "cid:byte-talks-logo",
-  micSrc = "cid:byte-talks-mic"
+  student = {},
+  arg2 = "cid:byte-talks-logo",
+  arg3 = "cid:byte-talks-mic",
+  arg4
 ) => {
+  // Gracefully handle (student, logoSrc, micSrc) or legacy (student, qrCodeSrc, logoSrc, micSrc)
+  let logoSrc = "cid:byte-talks-logo";
+  let micSrc = "cid:byte-talks-mic";
+
+  if (arg4 !== undefined) {
+    logoSrc = arg3 || "cid:byte-talks-logo";
+    micSrc = arg4 || "cid:byte-talks-mic";
+  } else if (typeof arg2 === "string" && arg2.includes("qr")) {
+    logoSrc = arg3 || "cid:byte-talks-logo";
+    micSrc = "cid:byte-talks-mic";
+  } else {
+    if (arg2) logoSrc = arg2;
+    if (arg3) micSrc = arg3;
+  }
+
+  const studentName = typeof student === "string"
+    ? student.trim()
+    : (student && typeof student === "object" ? (student.name || "") : "");
+  const greeting = studentName ? `Hey ${studentName},` : `Hey Naman,`;
+
   const body = `
       <div style="padding:32px 28px;">
-        <p style="font-size:15px; color:#ffffff; font-weight:600; margin:0 0 8px 0;">Hi ${student.name || "Participant"},</p>
-        <p style="font-size:14px; color:${BT_TEXT_MUTED}; line-height:1.6; margin:0 0 22px 0;">
-          This is a quick reminder that <strong>Byte Talks &mdash; Alumni Edition</strong> takes place on <strong>Friday, 30th October</strong> at CSIT Seminar Hall. Here is your schedule and entry pass.
+        <p style="font-size:16px; color:#ffffff; font-weight:600; margin:0 0 14px 0;">${greeting}</p>
+
+        <p style="font-size:14px; color:${BT_TEXT_MUTED}; line-height:1.7; margin:0 0 14px 0;">
+          <strong style="color:#ffffff;">GDG on Campus AKGEC brings you <span style="color:${BT_ACCENT};">Byte Talks &mdash; Alumni Edition</span></strong>, an opportunity to learn directly from alumni who once sat in the same classrooms, navigated the same academic journey, and went on to build careers in leading tech companies.
         </p>
 
-        <!-- 3 Quick Event Stat Chips -->
-        <table role="presentation" cellpadding="0" cellspacing="0" style="width:100%; margin-bottom:18px;">
-          <tr>
-            <td style="width:33.33%; padding:0 4px 0 0;">
-              <div style="background:${BT_CARD_HEADER}; border:1px solid ${BT_BORDER}; border-top:2px solid ${BT_PRIMARY}; border-radius:8px; padding:12px 8px; text-align:center;">
-                <div style="font-size:10px; font-weight:700; color:${BT_MUTED}; letter-spacing:1.5px; text-transform:uppercase;">DATE</div>
-                <div style="font-size:13px; font-weight:700; color:#ffffff; margin-top:4px;">30 OCT 2026</div>
-              </div>
-            </td>
-            <td style="width:33.33%; padding:0 2px;">
-              <div style="background:${BT_CARD_HEADER}; border:1px solid ${BT_BORDER}; border-top:2px solid ${BT_PRIMARY}; border-radius:8px; padding:12px 8px; text-align:center;">
-                <div style="font-size:10px; font-weight:700; color:${BT_MUTED}; letter-spacing:1.5px; text-transform:uppercase;">TIME</div>
-                <div style="font-size:13px; font-weight:700; color:#ffffff; margin-top:4px;">10:00 AM – 12:30 PM</div>
-              </div>
-            </td>
-            <td style="width:33.33%; padding:0 0 0 4px;">
-              <div style="background:${BT_CARD_HEADER}; border:1px solid ${BT_BORDER}; border-top:2px solid ${BT_PRIMARY}; border-radius:8px; padding:12px 8px; text-align:center;">
-                <div style="font-size:10px; font-weight:700; color:${BT_MUTED}; letter-spacing:1.5px; text-transform:uppercase;">VENUE</div>
-                <div style="font-size:13px; font-weight:700; color:#ffffff; margin-top:4px;">CSIT SEMINAR HALL</div>
-              </div>
-            </td>
-          </tr>
-        </table>
+        <p style="font-size:14px; color:${BT_TEXT_MUTED}; line-height:1.7; margin:0 0 22px 0;">
+          Whether you're a first-year student exploring programming or a second-year student preparing for internships, get practical guidance to make informed decisions about your tech journey.
+        </p>
 
-        <!-- Registered Attendee Card -->
-        <div style="background:${BT_CARD}; border:1px solid ${BT_BORDER}; border-radius:10px; padding:16px 20px; margin-bottom:20px;">
+        <!-- 📅 EVENT DETAILS -->
+        <div style="margin-bottom:22px;">
+          <div style="font-size:11px; font-weight:800; letter-spacing:1.5px; text-transform:uppercase; color:${BT_ACCENT}; margin-bottom:12px;">
+            📅 EVENT DETAILS
+          </div>
           <table role="presentation" cellpadding="0" cellspacing="0" style="width:100%;">
             <tr>
-              <td style="vertical-align:middle;">
-                <div style="font-size:10px; font-weight:700; letter-spacing:1.5px; text-transform:uppercase; color:${BT_PRIMARY};">REGISTERED ATTENDEE</div>
-                <div style="font-size:16px; font-weight:700; color:#ffffff; margin-top:3px;">${student.name || "Participant"}</div>
-                <div style="font-size:12px; color:${BT_MUTED}; margin-top:2px;">${student.branch} &bull; AKGEC</div>
+              <td style="width:33.33%; padding:0 4px 0 0;">
+                <div style="background:${BT_CARD_HEADER}; border:1px solid ${BT_BORDER}; border-top:2px solid ${BT_PRIMARY}; border-radius:8px; padding:12px 8px; text-align:center;">
+                  <div style="font-size:10px; font-weight:700; color:${BT_MUTED}; letter-spacing:1.5px; text-transform:uppercase;">DATE</div>
+                  <div style="font-size:12px; font-weight:700; color:#ffffff; margin-top:4px; line-height:1.4;">30 October 2026<br><span style="font-size:11px; color:${BT_ACCENT}; font-weight:600;">(Friday)</span></div>
+                </div>
               </td>
-              <td style="vertical-align:middle; text-align:right;">
-                <div style="display:inline-block; background:rgba(9,123,89,0.14); border:1px solid ${BT_PRIMARY}; border-radius:8px; padding:6px 14px; text-align:center;">
-                  <div style="font-size:9px; font-weight:700; letter-spacing:1px; color:${BT_MUTED}; text-transform:uppercase;">STUDENT ID</div>
-                  <div style="font-size:14px; font-weight:800; color:${BT_ACCENT}; font-family:'SF Mono',Consolas,monospace;">${student.studentNumber}</div>
+              <td style="width:33.33%; padding:0 2px;">
+                <div style="background:${BT_CARD_HEADER}; border:1px solid ${BT_BORDER}; border-top:2px solid ${BT_PRIMARY}; border-radius:8px; padding:12px 8px; text-align:center;">
+                  <div style="font-size:10px; font-weight:700; color:${BT_MUTED}; letter-spacing:1.5px; text-transform:uppercase;">TIME</div>
+                  <div style="font-size:12px; font-weight:700; color:#ffffff; margin-top:4px; line-height:1.4;">10:00 AM &ndash;<br>12:30 PM</div>
+                </div>
+              </td>
+              <td style="width:33.33%; padding:0 0 0 4px;">
+                <div style="background:${BT_CARD_HEADER}; border:1px solid ${BT_BORDER}; border-top:2px solid ${BT_PRIMARY}; border-radius:8px; padding:12px 8px; text-align:center;">
+                  <div style="font-size:10px; font-weight:700; color:${BT_MUTED}; letter-spacing:1.5px; text-transform:uppercase;">VENUE</div>
+                  <div style="font-size:12px; font-weight:700; color:#ffffff; margin-top:4px; line-height:1.4;">CSIT Seminar Hall<br><span style="font-size:11px; color:${BT_MUTED}; font-weight:600;">AKGEC</span></div>
                 </div>
               </td>
             </tr>
           </table>
         </div>
 
-        <!-- Official Entry Pass / QR Code Box -->
-        <div style="background:${BT_CARD}; border:1px solid ${BT_BORDER}; border-radius:12px; overflow:hidden; margin-bottom:20px; box-shadow:0 8px 24px rgba(0,0,0,0.35);">
-          <!-- Pass Header Strip -->
-          <div style="background:${BT_CARD_HEADER}; padding:10px 18px; border-bottom:1px solid #282e3d;">
-            <table role="presentation" cellpadding="0" cellspacing="0" style="width:100%;">
-              <tr>
-                <td style="font-size:10px; font-weight:800; letter-spacing:2px; text-transform:uppercase; color:${BT_PRIMARY};">
-                  &bull; OFFICIAL ENTRY PASS
-                </td>
-                <td style="text-align:right; font-size:10px; font-weight:700; letter-spacing:1px; text-transform:uppercase; color:${BT_ACCENT};">
-                  ADMIT ONE
-                </td>
-              </tr>
-            </table>
-          </div>
-
-          <div style="padding:24px 20px; text-align:center;">
-            <!-- QR Tile in white rounded frame -->
-            <div style="display:inline-block; padding:12px; background:#ffffff; border-radius:10px; box-shadow:0 6px 20px rgba(0,0,0,0.35);">
-              <img src="${qrCodeSrc}" alt="Entry QR Code" width="165" height="165" style="display:block; width:165px; height:165px;" />
-            </div>
-
-            <!-- Scannable ID Chip -->
-            <div style="margin-top:14px;">
-              <span style="font-family:'SF Mono',Consolas,monospace; font-size:13px; font-weight:800; color:#ffffff; background:#141720; border:1px solid #2b3244; padding:5px 16px; border-radius:20px; letter-spacing:1px;">
-                STUDENT ID: <strong style="color:${BT_ACCENT};">${student.studentNumber}</strong>
-              </span>
-            </div>
-
-            <p style="margin:12px 0 0 0; font-size:12px; color:${BT_MUTED};">
-              Present this QR code at the check-in desk for entry verification.
-            </p>
-          </div>
-        </div>
-
-        <!-- Important Guidelines with Numbered Badges -->
-        <div style="background:${BT_CARD}; border:1px solid ${BT_BORDER}; border-radius:10px; padding:18px 20px; margin-bottom:20px;">
-          <div style="font-size:10px; font-weight:800; letter-spacing:2px; text-transform:uppercase; color:${BT_PRIMARY}; margin-bottom:12px;">
-            IMPORTANT GUIDELINES
+        <!-- 💡 WHAT TO EXPECT -->
+        <div style="background:${BT_CARD}; border:1px solid ${BT_BORDER}; border-radius:10px; padding:18px 20px; margin-bottom:22px;">
+          <div style="font-size:11px; font-weight:800; letter-spacing:1.5px; text-transform:uppercase; color:${BT_ACCENT}; margin-bottom:12px;">
+            💡 WHAT TO EXPECT
           </div>
           <table role="presentation" cellpadding="0" cellspacing="0" style="width:100%; font-size:13px; color:${BT_TEXT_MUTED};">
             <tr>
-              <td style="padding:5px 0; vertical-align:top; width:26px;">
-                <span style="display:inline-block; background:rgba(9,123,89,0.2); color:${BT_ACCENT}; font-size:10px; font-weight:800; width:18px; height:18px; line-height:18px; text-align:center; border-radius:50%; border:1px solid ${BT_PRIMARY};">1</span>
-              </td>
-              <td style="padding:5px 0; vertical-align:middle; line-height:1.5;">
-                Carry your physical <strong style="color:#ffffff;">College ID Card</strong> for verification.
+              <td style="padding:6px 0; vertical-align:top; width:20px; color:${BT_ACCENT}; font-size:15px; line-height:1.4;">&bull;</td>
+              <td style="padding:6px 0; vertical-align:middle; line-height:1.6;">
+                <strong style="color:#ffffff;">Building Your Foundation:</strong> Programming, DSA, and meaningful projects.
               </td>
             </tr>
             <tr>
-              <td style="padding:5px 0; vertical-align:top;">
-                <span style="display:inline-block; background:rgba(9,123,89,0.2); color:${BT_ACCENT}; font-size:10px; font-weight:800; width:18px; height:18px; line-height:18px; text-align:center; border-radius:50%; border:1px solid ${BT_PRIMARY};">2</span>
-              </td>
-              <td style="padding:5px 0; vertical-align:middle; line-height:1.5;">
-                Arrive at the CSIT Seminar Hall by <strong style="color:#ffffff;">9:45 AM</strong> (15 minutes early).
+              <td style="padding:6px 0; vertical-align:top; width:20px; color:${BT_ACCENT}; font-size:15px; line-height:1.4;">&bull;</td>
+              <td style="padding:6px 0; vertical-align:middle; line-height:1.6;">
+                <strong style="color:#ffffff;">Exploring Tech Domains:</strong> Web Development, AI/ML, Cloud/DevOps, and Core CS.
               </td>
             </tr>
             <tr>
-              <td style="padding:5px 0; vertical-align:top;">
-                <span style="display:inline-block; background:rgba(9,123,89,0.2); color:${BT_ACCENT}; font-size:10px; font-weight:800; width:18px; height:18px; line-height:18px; text-align:center; border-radius:50%; border:1px solid ${BT_PRIMARY};">3</span>
+              <td style="padding:6px 0; vertical-align:top; width:20px; color:${BT_ACCENT}; font-size:15px; line-height:1.4;">&bull;</td>
+              <td style="padding:6px 0; vertical-align:middle; line-height:1.6;">
+                <strong style="color:#ffffff;">Internships &amp; Placements:</strong> Resume tips, opportunities, and lessons from alumni.
               </td>
-              <td style="padding:5px 0; vertical-align:middle; line-height:1.5;">
-                Keep all mobile devices on <strong style="color:#ffffff;">silent mode</strong> inside the hall.
+            </tr>
+            <tr>
+              <td style="padding:6px 0; vertical-align:top; width:20px; color:${BT_ACCENT}; font-size:15px; line-height:1.4;">&bull;</td>
+              <td style="padding:6px 0; vertical-align:middle; line-height:1.6;">
+                <strong style="color:#ffffff;">Open Q&amp;A:</strong> Get your questions answered directly by our alumni.
               </td>
             </tr>
           </table>
         </div>
 
-        <!-- Event Coordinator Bar -->
-        <div style="background:${BT_CARD}; border:1px solid ${BT_BORDER}; border-radius:10px; padding:16px 20px; margin:0;">
+        <!-- 🎟️ REGISTER NOW -->
+        <div style="background:${BT_CARD}; border:1px solid ${BT_BORDER}; border-radius:10px; padding:20px 20px; text-align:center; margin-bottom:22px;">
+          <div style="font-size:11px; font-weight:800; letter-spacing:1.5px; text-transform:uppercase; color:${BT_ACCENT}; margin-bottom:8px;">
+            🎟️ REGISTER NOW
+          </div>
+          <p style="font-size:13px; color:${BT_TEXT_MUTED}; margin:0 0 14px 0; line-height:1.6;">
+            Seats are limited. Register here:
+          </p>
+          <div style="margin:8px 0 12px 0;">
+            <a href="https://register.gdgakgec.org/" target="_blank" style="display:inline-block; background:linear-gradient(135deg, #097b59 0%, #2dd494 100%); color:#0b1d16; font-size:13px; font-weight:800; letter-spacing:0.5px; text-decoration:none; padding:12px 28px; border-radius:8px; box-shadow:0 4px 16px rgba(45,212,148,0.25);">
+              Register Now &rarr;
+            </a>
+          </div>
+          <div style="font-size:12px; color:${BT_MUTED};">
+            Register here: <a href="https://register.gdgakgec.org/" target="_blank" style="color:${BT_ACCENT}; text-decoration:none; font-weight:700;">https://register.gdgakgec.org/</a>
+          </div>
+        </div>
+
+        <!-- Note Guideline -->
+        <div style="background:#161922; border-left:3px solid ${BT_PRIMARY}; border-radius:6px; padding:12px 16px; margin-bottom:22px;">
+          <p style="font-size:12px; color:${BT_TEXT_MUTED}; line-height:1.6; margin:0;">
+            <strong style="color:#ffffff;">Note:</strong> Entry requires your physical <strong>College ID card</strong> and the <strong>Digital QR Pass</strong> sent to your email after registration.
+          </p>
+        </div>
+
+        <!-- Queries Bar -->
+        <div style="background:${BT_CARD}; border:1px solid ${BT_BORDER}; border-radius:10px; padding:14px 18px; margin-bottom:22px;">
           <table role="presentation" cellpadding="0" cellspacing="0" style="width:100%;">
             <tr>
               <td style="vertical-align:middle;">
-                <div style="font-size:10px; font-weight:800; letter-spacing:1.5px; text-transform:uppercase; color:${BT_MUTED};">NEED HELP?</div>
-                <div style="font-size:13px; font-weight:600; color:#ffffff; margin-top:2px;">Event Coordinator</div>
+                <div style="font-size:10px; font-weight:800; letter-spacing:1.5px; text-transform:uppercase; color:${BT_MUTED};">QUERIES</div>
+                <div style="font-size:13px; font-weight:600; color:#ffffff; margin-top:2px;">Shivansh</div>
               </td>
               <td style="vertical-align:middle; text-align:right;">
-                <span style="display:inline-block; background:#161922; border:1px solid ${BT_BORDER}; color:${BT_TEXT}; font-size:12px; font-weight:600; padding:6px 14px; border-radius:6px;">Shivansh: <strong style="color:${BT_ACCENT};">8115526688</strong></span>
+                <a href="tel:8115526688" style="display:inline-block; background:#161922; border:1px solid ${BT_BORDER}; color:${BT_ACCENT}; font-size:13px; font-weight:700; padding:6px 14px; border-radius:6px; text-decoration:none; font-family:'SF Mono',Consolas,monospace;">8115526688</a>
               </td>
             </tr>
           </table>
+        </div>
+
+        <!-- Sign-off -->
+        <div style="font-size:13px; color:${BT_TEXT_MUTED}; line-height:1.6; margin:0;">
+          <p style="margin:0 0 10px 0;">
+            Take the first step towards a clearer tech journey. See you at <strong style="color:#ffffff;">Byte Talks &mdash; Alumni Edition!</strong>
+          </p>
+          <p style="margin:0; font-weight:700; color:#ffffff;">
+            Team GDG on Campus &bull; AKGEC
+          </p>
         </div>
       </div>`;
   return wrapEmail(body, logoSrc, micSrc);
@@ -424,130 +435,144 @@ export const buildReminderEmailHtml = (
 
 // 4. Event Invitation / Information Template
 export const buildEventInviteEmailHtml = (
-  {
-    name = "",
-    registrationUrl = "https://register.gdgakgec.org",
-    eventDate = "30 OCT 2026",
-    eventTime = "10:00 AM – 12:30 PM",
-    eventVenue = "CSIT SEMINAR HALL",
-  } = {},
+  options = {},
   logoSrc = "cid:byte-talks-logo",
   micSrc = "cid:byte-talks-mic"
 ) => {
-  const greeting = name && name.trim() && name !== "Student" && name !== "Participant"
-    ? `Hey ${name.trim()},`
-    : `Hey everyone,`;
+  const details = typeof options === "string" ? { name: options } : (options || {});
+  const {
+    name = "",
+    registrationUrl = "https://register.gdgakgec.org/",
+  } = details;
+
+  const trimmedName = typeof name === "string" ? name.trim() : "";
+  const greeting = trimmedName && trimmedName !== "Student" && trimmedName !== "Participant"
+    ? `Hey ${trimmedName},`
+    : `Hey Naman,`;
 
   const body = `
       <div style="padding:32px 28px;">
         <p style="font-size:16px; color:#ffffff; font-weight:600; margin:0 0 14px 0;">${greeting}</p>
-        
+
         <p style="font-size:14px; color:${BT_TEXT_MUTED}; line-height:1.7; margin:0 0 14px 0;">
-          As you move deeper into your 2nd year, discussions about internships, placements, DSA, open-source, and tech stacks naturally start picking up. With countless roadmaps and conflicting advice across social media, it is easy to feel confused about where to actually invest your time.
+          <strong style="color:#ffffff;">GDG on Campus AKGEC brings you <span style="color:${BT_ACCENT};">Byte Talks &mdash; Alumni Edition</span></strong>, an opportunity to learn directly from alumni who once sat in the same classrooms, navigated the same academic journey, and went on to build careers in leading tech companies.
         </p>
 
         <p style="font-size:14px; color:${BT_TEXT_MUTED}; line-height:1.7; margin:0 0 22px 0;">
-          To help you cut through the noise, <strong style="color:#ffffff;">GDG on Campus AKGEC</strong> is organizing <strong style="color:${BT_ACCENT};">Byte Talks &mdash; Alumni Edition</strong>. We are bringing back our college alumni who sat in these exact classrooms, navigated the same curriculum, and cracked top tech firms to talk directly with you.
+          Whether you're a first-year student exploring programming or a second-year student preparing for internships, get practical guidance to make informed decisions about your tech journey.
         </p>
 
-        <!-- 3 Event Stat Chips -->
-        <table role="presentation" cellpadding="0" cellspacing="0" style="width:100%; margin-bottom:22px;">
-          <tr>
-            <td style="width:33.33%; padding:0 4px 0 0;">
-              <div style="background:${BT_CARD_HEADER}; border:1px solid ${BT_BORDER}; border-top:2px solid ${BT_PRIMARY}; border-radius:8px; padding:12px 8px; text-align:center;">
-                <div style="font-size:10px; font-weight:700; color:${BT_MUTED}; letter-spacing:1.5px; text-transform:uppercase;">DATE</div>
-                <div style="font-size:13px; font-weight:700; color:#ffffff; margin-top:4px;">${eventDate}</div>
-              </div>
-            </td>
-            <td style="width:33.33%; padding:0 2px;">
-              <div style="background:${BT_CARD_HEADER}; border:1px solid ${BT_BORDER}; border-top:2px solid ${BT_PRIMARY}; border-radius:8px; padding:12px 8px; text-align:center;">
-                <div style="font-size:10px; font-weight:700; color:${BT_MUTED}; letter-spacing:1.5px; text-transform:uppercase;">TIME</div>
-                <div style="font-size:13px; font-weight:700; color:#ffffff; margin-top:4px;">${eventTime}</div>
-              </div>
-            </td>
-            <td style="width:33.33%; padding:0 0 0 4px;">
-              <div style="background:${BT_CARD_HEADER}; border:1px solid ${BT_BORDER}; border-top:2px solid ${BT_PRIMARY}; border-radius:8px; padding:12px 8px; text-align:center;">
-                <div style="font-size:10px; font-weight:700; color:${BT_MUTED}; letter-spacing:1.5px; text-transform:uppercase;">VENUE</div>
-                <div style="font-size:13px; font-weight:700; color:#ffffff; margin-top:4px;">${eventVenue}</div>
-              </div>
-            </td>
-          </tr>
-        </table>
+        <!-- 📅 EVENT DETAILS -->
+        <div style="margin-bottom:22px;">
+          <div style="font-size:11px; font-weight:800; letter-spacing:1.5px; text-transform:uppercase; color:${BT_ACCENT}; margin-bottom:12px;">
+            📅 EVENT DETAILS
+          </div>
+          <table role="presentation" cellpadding="0" cellspacing="0" style="width:100%;">
+            <tr>
+              <td style="width:33.33%; padding:0 4px 0 0;">
+                <div style="background:${BT_CARD_HEADER}; border:1px solid ${BT_BORDER}; border-top:2px solid ${BT_PRIMARY}; border-radius:8px; padding:12px 8px; text-align:center;">
+                  <div style="font-size:10px; font-weight:700; color:${BT_MUTED}; letter-spacing:1.5px; text-transform:uppercase;">DATE</div>
+                  <div style="font-size:12px; font-weight:700; color:#ffffff; margin-top:4px; line-height:1.4;">30 October 2026<br><span style="font-size:11px; color:${BT_ACCENT}; font-weight:600;">(Friday)</span></div>
+                </div>
+              </td>
+              <td style="width:33.33%; padding:0 2px;">
+                <div style="background:${BT_CARD_HEADER}; border:1px solid ${BT_BORDER}; border-top:2px solid ${BT_PRIMARY}; border-radius:8px; padding:12px 8px; text-align:center;">
+                  <div style="font-size:10px; font-weight:700; color:${BT_MUTED}; letter-spacing:1.5px; text-transform:uppercase;">TIME</div>
+                  <div style="font-size:12px; font-weight:700; color:#ffffff; margin-top:4px; line-height:1.4;">10:00 AM &ndash;<br>12:30 PM</div>
+                </div>
+              </td>
+              <td style="width:33.33%; padding:0 0 0 4px;">
+                <div style="background:${BT_CARD_HEADER}; border:1px solid ${BT_BORDER}; border-top:2px solid ${BT_PRIMARY}; border-radius:8px; padding:12px 8px; text-align:center;">
+                  <div style="font-size:10px; font-weight:700; color:${BT_MUTED}; letter-spacing:1.5px; text-transform:uppercase;">VENUE</div>
+                  <div style="font-size:12px; font-weight:700; color:#ffffff; margin-top:4px; line-height:1.4;">CSIT Seminar Hall<br><span style="font-size:11px; color:${BT_MUTED}; font-weight:600;">AKGEC</span></div>
+                </div>
+              </td>
+            </tr>
+          </table>
+        </div>
 
-        <!-- Key Discussion Points -->
+        <!-- 💡 WHAT TO EXPECT -->
         <div style="background:${BT_CARD}; border:1px solid ${BT_BORDER}; border-radius:10px; padding:18px 20px; margin-bottom:22px;">
           <div style="font-size:11px; font-weight:800; letter-spacing:1.5px; text-transform:uppercase; color:${BT_ACCENT}; margin-bottom:12px;">
-            WHAT WE WILL BE DISCUSSING
+            💡 WHAT TO EXPECT
           </div>
           <table role="presentation" cellpadding="0" cellspacing="0" style="width:100%; font-size:13px; color:${BT_TEXT_MUTED};">
             <tr>
               <td style="padding:6px 0; vertical-align:top; width:20px; color:${BT_ACCENT}; font-size:15px; line-height:1.4;">&bull;</td>
               <td style="padding:6px 0; vertical-align:middle; line-height:1.6;">
-                <strong style="color:#ffffff;">The 2nd-to-3rd Year Roadmap:</strong> How to balance college academics while building strong DSA fundamentals and genuine projects that get noticed.
+                <strong style="color:#ffffff;">Building Your Foundation:</strong> Programming, DSA, and meaningful projects.
               </td>
             </tr>
             <tr>
               <td style="padding:6px 0; vertical-align:top; width:20px; color:${BT_ACCENT}; font-size:15px; line-height:1.4;">&bull;</td>
               <td style="padding:6px 0; vertical-align:middle; line-height:1.6;">
-                <strong style="color:#ffffff;">Choosing Your Focus:</strong> Honest advice on navigating Web Development, Cloud/DevOps, AI/ML, and Core CS roles without getting lost in tutorial hell.
+                <strong style="color:#ffffff;">Exploring Tech Domains:</strong> Web Development, AI/ML, Cloud/DevOps, and Core CS.
               </td>
             </tr>
             <tr>
               <td style="padding:6px 0; vertical-align:top; width:20px; color:${BT_ACCENT}; font-size:15px; line-height:1.4;">&bull;</td>
               <td style="padding:6px 0; vertical-align:middle; line-height:1.6;">
-                <strong style="color:#ffffff;">Internships &amp; Off-Campus Opportunities:</strong> How our alumni secured internships and placement offers, resume strategies, and common mistakes to avoid.
+                <strong style="color:#ffffff;">Internships &amp; Placements:</strong> Resume tips, opportunities, and lessons from alumni.
               </td>
             </tr>
             <tr>
               <td style="padding:6px 0; vertical-align:top; width:20px; color:${BT_ACCENT}; font-size:15px; line-height:1.4;">&bull;</td>
               <td style="padding:6px 0; vertical-align:middle; line-height:1.6;">
-                <strong style="color:#ffffff;">Open Q&amp;A:</strong> Direct, unfiltered discussion where you can ask whatever doubts you have about your tech journey.
+                <strong style="color:#ffffff;">Open Q&amp;A:</strong> Get your questions answered directly by our alumni.
               </td>
             </tr>
           </table>
         </div>
 
-        <!-- Registration Card -->
-        <div style="background:${BT_CARD}; border:1px solid ${BT_BORDER}; border-radius:10px; padding:22px 20px; text-align:center; margin-bottom:22px;">
-          <p style="font-size:13px; color:${BT_TEXT_MUTED}; margin:0 0 16px 0; line-height:1.6;">
-            Seating inside the CSIT Seminar Hall is limited, so please register early to confirm your attendance:
+        <!-- 🎟️ REGISTER NOW -->
+        <div style="background:${BT_CARD}; border:1px solid ${BT_BORDER}; border-radius:10px; padding:20px 20px; text-align:center; margin-bottom:22px;">
+          <div style="font-size:11px; font-weight:800; letter-spacing:1.5px; text-transform:uppercase; color:${BT_ACCENT}; margin-bottom:8px;">
+            🎟️ REGISTER NOW
+          </div>
+          <p style="font-size:13px; color:${BT_TEXT_MUTED}; margin:0 0 14px 0; line-height:1.6;">
+            Seats are limited. Register here:
           </p>
-          <div style="margin:10px 0 14px 0;">
+          <div style="margin:8px 0 12px 0;">
             <a href="${registrationUrl}" target="_blank" style="display:inline-block; background:linear-gradient(135deg, #097b59 0%, #2dd494 100%); color:#0b1d16; font-size:13px; font-weight:800; letter-spacing:0.5px; text-decoration:none; padding:12px 28px; border-radius:8px; box-shadow:0 4px 16px rgba(45,212,148,0.25);">
-              Register on the Portal &rarr;
+              Register Now &rarr;
             </a>
           </div>
           <div style="font-size:12px; color:${BT_MUTED};">
-            Portal link: <a href="${registrationUrl}" target="_blank" style="color:${BT_ACCENT}; text-decoration:none;">${registrationUrl}</a>
+            Register here: <a href="${registrationUrl}" target="_blank" style="color:${BT_ACCENT}; text-decoration:none; font-weight:700;">${registrationUrl}</a>
           </div>
         </div>
 
-        <!-- Note & Verification Guideline -->
+        <!-- Note Guideline -->
         <div style="background:#161922; border-left:3px solid ${BT_PRIMARY}; border-radius:6px; padding:12px 16px; margin-bottom:22px;">
           <p style="font-size:12px; color:${BT_TEXT_MUTED}; line-height:1.6; margin:0;">
-            <strong style="color:#ffffff;">Please Note:</strong> Entry to the seminar hall will require your physical <strong>College ID card</strong> and the <strong>Digital QR Pass</strong> sent to your email upon registering on the portal.
+            <strong style="color:#ffffff;">Note:</strong> Entry requires your physical <strong>College ID card</strong> and the <strong>Digital QR Pass</strong> sent to your email after registration.
           </p>
         </div>
 
-        <!-- Event Coordinator Bar -->
-        <div style="background:${BT_CARD}; border:1px solid ${BT_BORDER}; border-radius:10px; padding:14px 18px; margin:0 0 20px 0;">
+        <!-- Queries Bar -->
+        <div style="background:${BT_CARD}; border:1px solid ${BT_BORDER}; border-radius:10px; padding:14px 18px; margin-bottom:22px;">
           <table role="presentation" cellpadding="0" cellspacing="0" style="width:100%;">
             <tr>
               <td style="vertical-align:middle;">
-                <div style="font-size:10px; font-weight:800; letter-spacing:1.5px; text-transform:uppercase; color:${BT_MUTED};">QUERIES &amp; ASSISTANCE</div>
-                <div style="font-size:13px; font-weight:600; color:#ffffff; margin-top:2px;">Event Coordinator</div>
+                <div style="font-size:10px; font-weight:800; letter-spacing:1.5px; text-transform:uppercase; color:${BT_MUTED};">QUERIES</div>
+                <div style="font-size:13px; font-weight:600; color:#ffffff; margin-top:2px;">Shivansh</div>
               </td>
               <td style="vertical-align:middle; text-align:right;">
-                <span style="display:inline-block; background:#161922; border:1px solid ${BT_BORDER}; color:${BT_TEXT}; font-size:12px; font-weight:600; padding:6px 14px; border-radius:6px;">Shivansh: <strong style="color:${BT_ACCENT};">8115526688</strong></span>
+                <a href="tel:8115526688" style="display:inline-block; background:#161922; border:1px solid ${BT_BORDER}; color:${BT_ACCENT}; font-size:13px; font-weight:700; padding:6px 14px; border-radius:6px; text-decoration:none; font-family:'SF Mono',Consolas,monospace;">8115526688</a>
               </td>
             </tr>
           </table>
         </div>
 
-        <p style="font-size:13px; color:${BT_MUTED}; line-height:1.6; margin:0;">
-          See you at the CSIT Seminar Hall!<br/>
-          <strong style="color:#ffffff;">Team GDG on Campus &bull; AKGEC</strong>
-        </p>
+        <!-- Sign-off -->
+        <div style="font-size:13px; color:${BT_TEXT_MUTED}; line-height:1.6; margin:0;">
+          <p style="margin:0 0 10px 0;">
+            Take the first step towards a clearer tech journey. See you at <strong style="color:#ffffff;">Byte Talks &mdash; Alumni Edition!</strong>
+          </p>
+          <p style="margin:0; font-weight:700; color:#ffffff;">
+            Team GDG on Campus &bull; AKGEC
+          </p>
+        </div>
       </div>`;
   return wrapEmail(body, logoSrc, micSrc);
 };
@@ -629,18 +654,16 @@ export const sendRegisterationEmail = async (student) => {
 };
 
 // ==========================================
-// 3. BYTE TALKS — EVENT REMINDER EMAIL + QR CODE
+// ==========================================
+// 3. BYTE TALKS — EVENT REMINDER EMAIL
 // ==========================================
 export const sendReminderEmail = async (student) => {
   try {
-    const qrPayload = String(student.studentNumber || student._id);
-    const qrBuffer = await generateQRCode(qrPayload);
-
     const mailOptions = {
       from: `"Byte Talks 2026" <${process.env.EMAIL_USER || process.env.EMAIL_USERNAME}>`,
       to: student.email,
       subject: "Event Reminder — Byte Talks 2026",
-      html: buildReminderEmailHtml(student, "cid:student-qr-code", "cid:byte-talks-logo", "cid:byte-talks-mic"),
+      html: buildReminderEmailHtml(student, "cid:byte-talks-logo", "cid:byte-talks-mic"),
       attachments: [
         {
           filename: "byte-talks-logo.png",
@@ -651,11 +674,6 @@ export const sendReminderEmail = async (student) => {
           filename: "mic-icon.png",
           path: MIC_PATH,
           cid: "byte-talks-mic",
-        },
-        {
-          filename: `ByteTalks-QR-${student.studentNumber || "entry"}.png`,
-          content: qrBuffer,
-          cid: "student-qr-code",
         },
       ],
     };
@@ -668,7 +686,6 @@ export const sendReminderEmail = async (student) => {
   }
 };
 
-// ==========================================
 // 4. BYTE TALKS — EVENT INVITATION / INFO EMAIL
 // ==========================================
 export const sendEventInviteEmail = async (email, details = {}) => {
@@ -676,7 +693,7 @@ export const sendEventInviteEmail = async (email, details = {}) => {
     const mailOptions = {
       from: `"Byte Talks — GDG on Campus AKGEC" <${process.env.EMAIL_USER || process.env.EMAIL_USERNAME}>`,
       to: email,
-      subject: "Byte Talks (Alumni Edition) — Registrations Open for 2nd Year | GDG AKGEC",
+      subject: "Byte Talks (Alumni Edition) — Registrations Open | GDG AKGEC",
       html: buildEventInviteEmailHtml(details, "cid:byte-talks-logo", "cid:byte-talks-mic"),
       attachments: [
         {
@@ -700,4 +717,3 @@ export const sendEventInviteEmail = async (email, details = {}) => {
     throw error;
   }
 };
-
