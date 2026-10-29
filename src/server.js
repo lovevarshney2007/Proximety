@@ -40,19 +40,27 @@ app.use(morgan("combined"));
 // security
 app.use(
   cors({
-    origin: [
-      "http://localhost:5173",
-      "http://localhost:8080",
-      "https://gdg-registration-portal-git-main-nvneets-projects.vercel.app",
-      "https://gdg-portal.vercel.app",
-      "https://gdg-registration-portal.vercel.app",
-      "https://registration.gdgakgec.org",
-      "https://register.gdgakgec.org",
-      "https://registration.gdgakgec.in",
-      "https://register.gdgakgec.in",
-      "https://id-preview--1700c912-24a1-4274-bc47-72f8467d96d0.lovable.app",
-      "https://gdg-admin-hub.vercel.app"
-    ],
+    origin: (origin, callback) => {
+      if (!origin) return callback(null, true);
+      const allowedOrigins = [
+        "http://localhost:5173",
+        "http://localhost:8080",
+        "https://gdg-registration-portal-git-main-nvneets-projects.vercel.app",
+        "https://gdg-portal.vercel.app",
+        "https://gdg-registration-portal.vercel.app",
+        "https://registration.gdgakgec.org",
+        "https://register.gdgakgec.org",
+        "https://registration.gdgakgec.in",
+        "https://register.gdgakgec.in",
+        "https://id-preview--1700c912-24a1-4274-bc47-72f8467d96d0.lovable.app",
+        "https://gdg-admin-hub.vercel.app",
+        "https://gdg-admin-hub-eta.vercel.app",
+      ];
+      if (allowedOrigins.includes(origin) || origin.endsWith(".vercel.app") || origin.includes("localhost")) {
+        return callback(null, true);
+      }
+      return callback(null, false);
+    },
     credentials: true,
   })
 );
