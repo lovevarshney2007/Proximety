@@ -89,10 +89,12 @@ const verifyCaptcha = async (captchaToken, req) => {
 export const getRegistrationStatus = async (req, res, next) => {
   try {
     const totalRegistrations = await Registration.countDocuments();
-    const isMaleClosed = totalRegistrations >= 200;
+    const maleCount = await Registration.countDocuments({ gender: "Male" });
+    const isMaleClosed = totalRegistrations >= 200 || maleCount >= 200;
     return res.status(200).json({
       success: true,
       totalRegistrations,
+      maleCount,
       isMaleClosed,
       isFemaleClosed: false,
       message: isMaleClosed
@@ -122,7 +124,8 @@ export const sendRegistrationOtp = async (req, res, next) => {
 
     if (gender === "Male") {
       const totalRegistrations = await Registration.countDocuments();
-      if (totalRegistrations >= 200) {
+      const maleCount = await Registration.countDocuments({ gender: "Male" });
+      if (totalRegistrations >= 200 || maleCount >= 200) {
         return res.status(403).json({
           success: false,
           message: "Registration for male students is closed (200 seats limit reached). Registrations remain open for female students.",
@@ -296,7 +299,8 @@ export const registerStudent = async (req, res, next) => {
 
     if (value.gender === "Male") {
       const totalRegistrations = await Registration.countDocuments();
-      if (totalRegistrations >= 200) {
+      const maleCount = await Registration.countDocuments({ gender: "Male" });
+      if (totalRegistrations >= 200 || maleCount >= 200) {
         return res.status(403).json({
           success: false,
           message: "Registration for male students is closed (200 seats limit reached). Registrations remain open for female students.",
