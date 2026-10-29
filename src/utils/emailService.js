@@ -125,7 +125,7 @@ export const buildOtpEmailHtml = (name, otp, logoSrc = "cid:byte-talks-logo", mi
             <span style="font-family:'SF Mono',Consolas,Menlo,Monaco,monospace; font-size:40px; font-weight:800; letter-spacing:12px; color:${BT_ACCENT}; text-shadow:0 0 24px rgba(9,123,89,0.45); margin-left:12px;">${otp}</span>
           </div>
           <div style="margin-top:14px; font-size:12px; color:${BT_MUTED};">
-            Valid for <strong>5 minutes</strong> &bull; Single-use verification code
+            Valid for <strong>10 minutes</strong> &bull; Single-use verification code
           </div>
         </div>
 

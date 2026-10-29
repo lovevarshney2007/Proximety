@@ -206,14 +206,16 @@ export const verifyOtp = async (req, res, next) => {
       });
     }
 
-    if (!otp) {
+    const cleanOtp = String(otp || "").replace(/\s+/g, "").trim();
+
+    if (!cleanOtp) {
       return res.status(400).json({
         success: false,
         message: "OTP required",
       });
     }
 
-    const verificationResult = await verifyOtpInRedis(email, otp, MAX_OTP_ATTEMPTS);
+    const verificationResult = await verifyOtpInRedis(email, cleanOtp, MAX_OTP_ATTEMPTS);
 
     if (!verificationResult.success) {
       return res.status(400).json({

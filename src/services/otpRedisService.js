@@ -1,7 +1,7 @@
 import { Otp } from "../models/otpModel.js";
 
 const normalizeEmail = (email = "") => email.trim().toLowerCase();
-const OTP_EXPIRY_MS = 5 * 60 * 1000; // 5 minutes strict TTL
+const OTP_EXPIRY_MS = 10 * 60 * 1000; // 10 minutes strict TTL
 
 export const checkCooldown = async (email) => {
   const normalized = normalizeEmail(email);
@@ -40,7 +40,7 @@ export const verifyOtpInRedis = async (email, otp, maxAttempts = 5) => {
     return { success: false, message: "OTP expired or invalid" };
   }
 
-  // Strict 5-minute expiry validation
+  // Strict 10-minute expiry validation
   if (record.createdAt && Date.now() - record.createdAt.getTime() > OTP_EXPIRY_MS) {
     await Otp.deleteOne({ email: normalized });
     return {
@@ -59,7 +59,9 @@ export const verifyOtpInRedis = async (email, otp, maxAttempts = 5) => {
     };
   }
 
-  if (record.otp !== String(otp)) {
+  const cleanInputOtp = String(otp || "").replace(/\s+/g, "").trim();
+
+  if (record.otp !== cleanInputOtp) {
     await record.save();
     return {
       success: false,
