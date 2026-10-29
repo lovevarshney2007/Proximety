@@ -424,6 +424,183 @@ export const buildReminderEmailHtml = (
   return wrapEmail(body, logoSrc, micSrc);
 };
 
+// 4. Event Invitation / Information Template
+export const buildEventInviteEmailHtml = (
+  {
+    name = "Student",
+    registrationUrl = "https://register.gdgakgec.org",
+    eventDate = "30 OCT 2026",
+    eventTime = "10:00 AM – 12:30 PM",
+    eventVenue = "CSIT SEMINAR HALL",
+  } = {},
+  logoSrc = "cid:byte-talks-logo",
+  micSrc = "cid:byte-talks-mic"
+) => {
+  const body = `
+      <div style="padding:32px 28px;">
+        <p style="font-size:15px; color:#ffffff; font-weight:600; margin:0 0 8px 0;">Hi ${name || "Participant"},</p>
+        <p style="font-size:14px; color:${BT_TEXT_MUTED}; line-height:1.6; margin:0 0 22px 0;">
+          <strong>Google Developer Groups on Campus &bull; AKGEC</strong> invites you to our flagship event: <strong style="color:${BT_ACCENT};">Byte Talks &mdash; Alumni Edition</strong>.
+        </p>
+
+        <!-- Big Announcement Banner Card -->
+        <div style="background:${BT_CARD}; border:1px solid ${BT_BORDER}; border-radius:12px; padding:24px 20px; margin-bottom:22px; text-align:center; box-shadow:0 8px 24px rgba(0,0,0,0.35);">
+          <div style="display:inline-block; background:rgba(9,123,89,0.18); border:1px solid ${BT_PRIMARY}; color:${BT_ACCENT}; font-size:10px; font-weight:800; letter-spacing:2px; text-transform:uppercase; padding:5px 14px; border-radius:20px; margin-bottom:12px;">
+            EXCLUSIVE FLAGSHIP SESSION &bull; GDG ON CAMPUS
+          </div>
+          <h1 style="margin:0 0 10px 0; font-size:24px; font-weight:800; color:#ffffff; letter-spacing:0.5px;">Byte Talks 2026</h1>
+          <p style="margin:0 0 20px 0; font-size:13px; color:${BT_TEXT_MUTED}; line-height:1.6; max-width:480px; margin-left:auto; margin-right:auto;">
+            Connect with accomplished alumni working at industry-leading tech firms. Gain real-world insights, placement strategies, software engineering roadmaps, and 1-on-1 mentorship.
+          </p>
+
+          <!-- Call to action button -->
+          <div style="margin:18px 0 10px 0;">
+            <a href="${registrationUrl}" target="_blank" style="display:inline-block; background:linear-gradient(135deg, #097b59 0%, #2dd494 100%); color:#0b1d16; font-size:14px; font-weight:800; letter-spacing:1px; text-transform:uppercase; text-decoration:none; padding:14px 28px; border-radius:8px; box-shadow:0 6px 20px rgba(45,212,148,0.35);">
+              🎟️ Register Now For Free &rarr;
+            </a>
+          </div>
+          <div style="font-size:11px; color:${BT_MUTED}; margin-top:8px;">
+            Free Registration &bull; Limited Seats &bull; Automated QR Entry Pass
+          </div>
+        </div>
+
+        <!-- 3 Quick Event Stat Chips -->
+        <table role="presentation" cellpadding="0" cellspacing="0" style="width:100%; margin-bottom:22px;">
+          <tr>
+            <td style="width:33.33%; padding:0 4px 0 0;">
+              <div style="background:${BT_CARD_HEADER}; border:1px solid ${BT_BORDER}; border-top:2px solid ${BT_PRIMARY}; border-radius:8px; padding:12px 8px; text-align:center;">
+                <div style="font-size:10px; font-weight:700; color:${BT_MUTED}; letter-spacing:1.5px; text-transform:uppercase;">DATE</div>
+                <div style="font-size:13px; font-weight:700; color:#ffffff; margin-top:4px;">${eventDate}</div>
+              </div>
+            </td>
+            <td style="width:33.33%; padding:0 2px;">
+              <div style="background:${BT_CARD_HEADER}; border:1px solid ${BT_BORDER}; border-top:2px solid ${BT_PRIMARY}; border-radius:8px; padding:12px 8px; text-align:center;">
+                <div style="font-size:10px; font-weight:700; color:${BT_MUTED}; letter-spacing:1.5px; text-transform:uppercase;">TIME</div>
+                <div style="font-size:13px; font-weight:700; color:#ffffff; margin-top:4px;">${eventTime}</div>
+              </div>
+            </td>
+            <td style="width:33.33%; padding:0 0 0 4px;">
+              <div style="background:${BT_CARD_HEADER}; border:1px solid ${BT_BORDER}; border-top:2px solid ${BT_PRIMARY}; border-radius:8px; padding:12px 8px; text-align:center;">
+                <div style="font-size:10px; font-weight:700; color:${BT_MUTED}; letter-spacing:1.5px; text-transform:uppercase;">VENUE</div>
+                <div style="font-size:13px; font-weight:700; color:#ffffff; margin-top:4px;">${eventVenue}</div>
+              </div>
+            </td>
+          </tr>
+        </table>
+
+        <!-- Key Session Highlights Card -->
+        <div style="background:${BT_CARD}; border:1px solid ${BT_BORDER}; border-radius:10px; padding:18px 20px; margin-bottom:22px;">
+          <div style="font-size:10px; font-weight:800; letter-spacing:2px; text-transform:uppercase; color:${BT_PRIMARY}; margin-bottom:14px;">
+            KEY SESSION HIGHLIGHTS
+          </div>
+          <table role="presentation" cellpadding="0" cellspacing="0" style="width:100%; font-size:13px; color:${BT_TEXT_MUTED};">
+            <tr>
+              <td style="padding:6px 0; vertical-align:top; width:26px;">
+                <span style="display:inline-block; background:rgba(9,123,89,0.2); color:${BT_ACCENT}; font-size:10px; font-weight:800; width:18px; height:18px; line-height:18px; text-align:center; border-radius:50%; border:1px solid ${BT_PRIMARY};">&bull;</span>
+              </td>
+              <td style="padding:6px 0; vertical-align:middle; line-height:1.5;">
+                <strong style="color:#ffffff;">Industry Career Journeys:</strong> Hear directly from experienced alumni about their transition from college to top tech roles.
+              </td>
+            </tr>
+            <tr>
+              <td style="padding:6px 0; vertical-align:top;">
+                <span style="display:inline-block; background:rgba(9,123,89,0.2); color:${BT_ACCENT}; font-size:10px; font-weight:800; width:18px; height:18px; line-height:18px; text-align:center; border-radius:50%; border:1px solid ${BT_PRIMARY};">&bull;</span>
+              </td>
+              <td style="padding:6px 0; vertical-align:middle; line-height:1.5;">
+                <strong style="color:#ffffff;">Placements &amp; Internships Blueprint:</strong> Tips on resume building, coding rounds (DSA/CP), system design, and open-source contributions.
+              </td>
+            </tr>
+            <tr>
+              <td style="padding:6px 0; vertical-align:top;">
+                <span style="display:inline-block; background:rgba(9,123,89,0.2); color:${BT_ACCENT}; font-size:10px; font-weight:800; width:18px; height:18px; line-height:18px; text-align:center; border-radius:50%; border:1px solid ${BT_PRIMARY};">&bull;</span>
+              </td>
+              <td style="padding:6px 0; vertical-align:middle; line-height:1.5;">
+                <strong style="color:#ffffff;">Modern Tech Stacks:</strong> Insights into Cloud, DevOps, Backend engineering, and AI/ML trends shaping 2026.
+              </td>
+            </tr>
+            <tr>
+              <td style="padding:6px 0; vertical-align:top;">
+                <span style="display:inline-block; background:rgba(9,123,89,0.2); color:${BT_ACCENT}; font-size:10px; font-weight:800; width:18px; height:18px; line-height:18px; text-align:center; border-radius:50%; border:1px solid ${BT_PRIMARY};">&bull;</span>
+              </td>
+              <td style="padding:6px 0; vertical-align:middle; line-height:1.5;">
+                <strong style="color:#ffffff;">Live Interactive Q&amp;A:</strong> Ask your questions directly to the speakers in an open discussion.
+              </td>
+            </tr>
+          </table>
+        </div>
+
+        <!-- Registration & Steps Card -->
+        <div style="background:${BT_CARD}; border:1px solid ${BT_BORDER}; border-radius:10px; padding:18px 20px; margin-bottom:22px;">
+          <div style="font-size:10px; font-weight:800; letter-spacing:2px; text-transform:uppercase; color:${BT_PRIMARY}; margin-bottom:10px;">
+            HOW TO REGISTER
+          </div>
+          <p style="font-size:13px; color:${BT_TEXT_MUTED}; line-height:1.6; margin:0 0 14px 0;">
+            1. Open the registration portal via the link below.<br/>
+            2. Enter your college email (<code style="color:${BT_ACCENT}; background:#141720; padding:2px 6px; border-radius:4px;">@akgec.ac.in</code>) and verify with the 6-digit OTP.<br/>
+            3. Fill in your details. You will instantly receive a confirmation email with your personal scannable QR ticket.
+          </p>
+
+          <!-- Link Box -->
+          <div style="background:#161922; border:1px dashed ${BT_PRIMARY}; border-radius:8px; padding:12px 16px; word-break:break-all;">
+            <div style="font-size:10px; font-weight:700; color:${BT_MUTED}; margin-bottom:4px; text-transform:uppercase;">Registration Portal:</div>
+            <a href="${registrationUrl}" target="_blank" style="font-family:'SF Mono',Consolas,monospace; font-size:13px; font-weight:700; color:${BT_ACCENT}; text-decoration:none;">
+              ${registrationUrl}
+            </a>
+          </div>
+        </div>
+
+        <!-- Important Guidelines with Numbered Badges -->
+        <div style="background:${BT_CARD}; border:1px solid ${BT_BORDER}; border-radius:10px; padding:18px 20px; margin-bottom:22px;">
+          <div style="font-size:10px; font-weight:800; letter-spacing:2px; text-transform:uppercase; color:${BT_PRIMARY}; margin-bottom:12px;">
+            IMPORTANT GUIDELINES
+          </div>
+          <table role="presentation" cellpadding="0" cellspacing="0" style="width:100%; font-size:13px; color:${BT_TEXT_MUTED};">
+            <tr>
+              <td style="padding:5px 0; vertical-align:top; width:26px;">
+                <span style="display:inline-block; background:rgba(9,123,89,0.2); color:${BT_ACCENT}; font-size:10px; font-weight:800; width:18px; height:18px; line-height:18px; text-align:center; border-radius:50%; border:1px solid ${BT_PRIMARY};">1</span>
+              </td>
+              <td style="padding:5px 0; vertical-align:middle; line-height:1.5;">
+                Carry your physical <strong style="color:#ffffff;">College ID Card</strong> for verification at the entrance.
+              </td>
+            </tr>
+            <tr>
+              <td style="padding:5px 0; vertical-align:top;">
+                <span style="display:inline-block; background:rgba(9,123,89,0.2); color:${BT_ACCENT}; font-size:10px; font-weight:800; width:18px; height:18px; line-height:18px; text-align:center; border-radius:50%; border:1px solid ${BT_PRIMARY};">2</span>
+              </td>
+              <td style="padding:5px 0; vertical-align:middle; line-height:1.5;">
+                Arrive at the CSIT Seminar Hall by <strong style="color:#ffffff;">9:45 AM</strong> (15 minutes early).
+              </td>
+            </tr>
+            <tr>
+              <td style="padding:5px 0; vertical-align:top;">
+                <span style="display:inline-block; background:rgba(9,123,89,0.2); color:${BT_ACCENT}; font-size:10px; font-weight:800; width:18px; height:18px; line-height:18px; text-align:center; border-radius:50%; border:1px solid ${BT_PRIMARY};">3</span>
+              </td>
+              <td style="padding:5px 0; vertical-align:middle; line-height:1.5;">
+                Keep all mobile devices on <strong style="color:#ffffff;">silent mode</strong> inside the hall.
+              </td>
+            </tr>
+          </table>
+        </div>
+
+        <!-- Event Coordinators Bar -->
+        <div style="background:${BT_CARD}; border:1px solid ${BT_BORDER}; border-radius:10px; padding:16px 20px; margin:0;">
+          <table role="presentation" cellpadding="0" cellspacing="0" style="width:100%;">
+            <tr>
+              <td style="vertical-align:middle;">
+                <div style="font-size:10px; font-weight:800; letter-spacing:1.5px; text-transform:uppercase; color:${BT_MUTED};">NEED HELP?</div>
+                <div style="font-size:13px; font-weight:600; color:#ffffff; margin-top:2px;">Event Coordinators</div>
+              </td>
+              <td style="vertical-align:middle; text-align:right;">
+                <span style="display:inline-block; background:#161922; border:1px solid ${BT_BORDER}; color:${BT_TEXT}; font-size:12px; font-weight:600; padding:6px 12px; border-radius:6px; margin-right:6px;">Shivansh: <strong style="color:${BT_ACCENT};">8115526688</strong></span>
+                <span style="display:inline-block; background:#161922; border:1px solid ${BT_BORDER}; color:${BT_TEXT}; font-size:12px; font-weight:600; padding:6px 12px; border-radius:6px;">Sarika: <strong style="color:${BT_ACCENT};">6394316608</strong></span>
+              </td>
+            </tr>
+          </table>
+        </div>
+      </div>`;
+  return wrapEmail(body, logoSrc, micSrc);
+};
+
 // ==========================================
 // 1. BYTE TALKS — OTP EMAIL
 // ==========================================
@@ -539,3 +716,37 @@ export const sendReminderEmail = async (student) => {
     throw error;
   }
 };
+
+// ==========================================
+// 4. BYTE TALKS — EVENT INVITATION / INFO EMAIL
+// ==========================================
+export const sendEventInviteEmail = async (email, details = {}) => {
+  try {
+    const mailOptions = {
+      from: `"Byte Talks 2026" <${process.env.EMAIL_USER || process.env.EMAIL_USERNAME}>`,
+      to: email,
+      subject: "Byte Talks 2026 (Alumni Edition) — Event Details and Registration",
+      html: buildEventInviteEmailHtml(details, "cid:byte-talks-logo", "cid:byte-talks-mic"),
+      attachments: [
+        {
+          filename: "byte-talks-logo.png",
+          path: LOGO_PATH,
+          cid: "byte-talks-logo",
+        },
+        {
+          filename: "mic-icon.png",
+          path: MIC_PATH,
+          cid: "byte-talks-mic",
+        },
+      ],
+    };
+
+    const info = await transporter.sendMail(mailOptions);
+    console.log(`✅ Event Invitation Email sent successfully to ${email}`);
+    return info;
+  } catch (error) {
+    console.error("❌ Error sending event invitation email:", error);
+    throw error;
+  }
+};
+
