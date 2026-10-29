@@ -39,6 +39,9 @@ export function getMicDataUri() {
 }
 
 const transporter = nodemailer.createTransport({
+  pool: true,
+  maxConnections: 5,
+  maxMessages: 100,
   host: "smtp.gmail.com",
   port: 587,
   secure: false,
