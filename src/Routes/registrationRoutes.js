@@ -1,5 +1,10 @@
 import express from "express";
-import { sendRegistrationOtp, verifyOtp, registerStudent } from "../controllers/registrationController.js";
+import {
+  sendRegistrationOtp,
+  verifyOtp,
+  registerStudent,
+  getRegistrationStatus,
+} from "../controllers/registrationController.js";
 import {
   checkIpBlacklist,
   sendOtpLimiter,
@@ -36,6 +41,7 @@ router.get("/admin/stats", adminAuth, getStats);
 router.use(checkIpBlacklist);
 
 // Public Registration Routes with Dedicated Limiters
+router.get("/registration-status", getRegistrationStatus);
 router.post("/send-otp", sendOtpLimiter, sendRegistrationOtp);
 router.post("/verify-otp", verifyOtpLimiter, verifyOtp);
 router.post("/register", registerLimiter, registerStudent);

@@ -33,6 +33,24 @@ const verifyCaptcha = async (captchaToken, req) => {
 
   if (bypassCaptcha) return { isValid: true };
 
+export const getRegistrationStatus = async (req, res, next) => {
+  try {
+    const totalRegistrations = await Registration.countDocuments();
+    const isMaleClosed = totalRegistrations >= 200;
+    return res.status(200).json({
+      success: true,
+      totalRegistrations,
+      isMaleClosed,
+      isFemaleClosed: false,
+      message: isMaleClosed
+        ? "Registration for male students is closed (200 seats limit reached). Registration remains open for female students."
+        : "Registrations are open.",
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
   // Allow ADMIN_API_KEY as a valid bypass token or via x-api-key header for testing
   if (
     process.env.ADMIN_API_KEY &&
@@ -40,10 +58,46 @@ const verifyCaptcha = async (captchaToken, req) => {
       req?.headers?.["x-api-key"] === process.env.ADMIN_API_KEY)
   ) {
     return { isValid: true };
+
+export const getRegistrationStatus = async (req, res, next) => {
+  try {
+    const totalRegistrations = await Registration.countDocuments();
+    const isMaleClosed = totalRegistrations >= 200;
+    return res.status(200).json({
+      success: true,
+      totalRegistrations,
+      isMaleClosed,
+      isFemaleClosed: false,
+      message: isMaleClosed
+        ? "Registration for male students is closed (200 seats limit reached). Registration remains open for female students."
+        : "Registrations are open.",
+    });
+  } catch (error) {
+    next(error);
+  }
+};
   }
 
   if (!captchaToken) {
     return { isValid: false, message: "Verification failed" };
+
+export const getRegistrationStatus = async (req, res, next) => {
+  try {
+    const totalRegistrations = await Registration.countDocuments();
+    const isMaleClosed = totalRegistrations >= 200;
+    return res.status(200).json({
+      success: true,
+      totalRegistrations,
+      isMaleClosed,
+      isFemaleClosed: false,
+      message: isMaleClosed
+        ? "Registration for male students is closed (200 seats limit reached). Registration remains open for female students."
+        : "Registrations are open.",
+    });
+  } catch (error) {
+    next(error);
+  }
+};
   }
 
   try {
@@ -66,9 +120,45 @@ const verifyCaptcha = async (captchaToken, req) => {
         isValid: false,
         message: "Verification failed",
       };
+
+export const getRegistrationStatus = async (req, res, next) => {
+  try {
+    const totalRegistrations = await Registration.countDocuments();
+    const isMaleClosed = totalRegistrations >= 200;
+    return res.status(200).json({
+      success: true,
+      totalRegistrations,
+      isMaleClosed,
+      isFemaleClosed: false,
+      message: isMaleClosed
+        ? "Registration for male students is closed (200 seats limit reached). Registration remains open for female students."
+        : "Registrations are open.",
+    });
+  } catch (error) {
+    next(error);
+  }
+};
     }
 
     return { isValid: true };
+
+export const getRegistrationStatus = async (req, res, next) => {
+  try {
+    const totalRegistrations = await Registration.countDocuments();
+    const isMaleClosed = totalRegistrations >= 200;
+    return res.status(200).json({
+      success: true,
+      totalRegistrations,
+      isMaleClosed,
+      isFemaleClosed: false,
+      message: isMaleClosed
+        ? "Registration for male students is closed (200 seats limit reached). Registration remains open for female students."
+        : "Registrations are open.",
+    });
+  } catch (error) {
+    next(error);
+  }
+};
 
   } catch (error) {
 
@@ -77,6 +167,42 @@ const verifyCaptcha = async (captchaToken, req) => {
       message: "Verification failed",
     };
 
+export const getRegistrationStatus = async (req, res, next) => {
+  try {
+    const totalRegistrations = await Registration.countDocuments();
+    const isMaleClosed = totalRegistrations >= 200;
+    return res.status(200).json({
+      success: true,
+      totalRegistrations,
+      isMaleClosed,
+      isFemaleClosed: false,
+      message: isMaleClosed
+        ? "Registration for male students is closed (200 seats limit reached). Registration remains open for female students."
+        : "Registrations are open.",
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+  }
+};
+
+export const getRegistrationStatus = async (req, res, next) => {
+  try {
+    const totalRegistrations = await Registration.countDocuments();
+    const isMaleClosed = totalRegistrations >= 200;
+    return res.status(200).json({
+      success: true,
+      totalRegistrations,
+      isMaleClosed,
+      isFemaleClosed: false,
+      message: isMaleClosed
+        ? "Registration for male students is closed (200 seats limit reached). Registration remains open for female students."
+        : "Registrations are open.",
+    });
+  } catch (error) {
+    next(error);
   }
 };
 
@@ -95,6 +221,16 @@ export const sendRegistrationOtp = async (req, res, next) => {
     });
 
     let { email, name, studentNumber, captchaToken, gender, residence, phone } = value;
+
+    if (gender === "Male") {
+      const totalRegistrations = await Registration.countDocuments();
+      if (totalRegistrations >= 200) {
+        return res.status(403).json({
+          success: false,
+          message: "Registration for male students is closed (200 seats limit reached). Registrations remain open for female students.",
+        });
+      }
+    }
 
     if (gender === "Female" && residence === "Hosteller") {
       const deadline = new Date("2026-10-30T16:00:00+05:30");
@@ -177,6 +313,24 @@ export const sendRegistrationOtp = async (req, res, next) => {
   }
 };
 
+export const getRegistrationStatus = async (req, res, next) => {
+  try {
+    const totalRegistrations = await Registration.countDocuments();
+    const isMaleClosed = totalRegistrations >= 200;
+    return res.status(200).json({
+      success: true,
+      totalRegistrations,
+      isMaleClosed,
+      isFemaleClosed: false,
+      message: isMaleClosed
+        ? "Registration for male students is closed (200 seats limit reached). Registration remains open for female students."
+        : "Registrations are open.",
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
 
 
 /* ===============================
@@ -234,6 +388,24 @@ export const verifyOtp = async (req, res, next) => {
   }
 };
 
+export const getRegistrationStatus = async (req, res, next) => {
+  try {
+    const totalRegistrations = await Registration.countDocuments();
+    const isMaleClosed = totalRegistrations >= 200;
+    return res.status(200).json({
+      success: true,
+      totalRegistrations,
+      isMaleClosed,
+      isFemaleClosed: false,
+      message: isMaleClosed
+        ? "Registration for male students is closed (200 seats limit reached). Registration remains open for female students."
+        : "Registrations are open.",
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
 
 
 /* ===============================
@@ -259,6 +431,16 @@ export const registerStudent = async (req, res, next) => {
     const email =
       // value.email.trim().toLowerCase();
       normalizeEmail(value.email);
+
+    if (value.gender === "Male") {
+      const totalRegistrations = await Registration.countDocuments();
+      if (totalRegistrations >= 200) {
+        return res.status(403).json({
+          success: false,
+          message: "Registration for male students is closed (200 seats limit reached). Registrations remain open for female students.",
+        });
+      }
+    }
 
     if (value.gender === "Female" && value.residence === "Hosteller") {
       const deadline = new Date("2026-10-30T16:00:00+05:30");
@@ -350,6 +532,43 @@ export const registerStudent = async (req, res, next) => {
       });
     }
 
+    next(error);
+  }
+};
+
+
+export const getRegistrationStatus = async (req, res, next) => {
+  try {
+    const totalRegistrations = await Registration.countDocuments();
+    const isMaleClosed = totalRegistrations >= 200;
+    return res.status(200).json({
+      success: true,
+      totalRegistrations,
+      isMaleClosed,
+      isFemaleClosed: false,
+      message: isMaleClosed
+        ? "Registration for male students is closed (200 seats limit reached). Registration remains open for female students."
+        : "Registrations are open.",
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const getRegistrationStatus = async (req, res, next) => {
+  try {
+    const totalRegistrations = await Registration.countDocuments();
+    const isMaleClosed = totalRegistrations >= 200;
+    return res.status(200).json({
+      success: true,
+      totalRegistrations,
+      isMaleClosed,
+      isFemaleClosed: false,
+      message: isMaleClosed
+        ? "Registration for male students is closed (200 seats limit reached). Registration remains open for female students."
+        : "Registrations are open.",
+    });
+  } catch (error) {
     next(error);
   }
 };

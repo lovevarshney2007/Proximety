@@ -451,7 +451,7 @@ export const buildEventInviteEmailHtml = (
   const trimmedName = typeof name === "string" ? name.trim() : "";
   const greeting = trimmedName && trimmedName !== "Student" && trimmedName !== "Participant"
     ? `Hey ${trimmedName},`
-    : `Hey Naman,`;
+    : `Hey there,`;
 
   const body = `
       <div style="padding:32px 28px;">
