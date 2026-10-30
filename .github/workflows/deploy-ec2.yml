@@ -22,7 +22,8 @@ jobs:
           script: |
             echo "📦 Pulling latest code..."
             cd ~/ByteTalk
-            git pull origin main
+            git fetch origin main
+            git reset --hard origin/main
 
             echo "📥 Installing dependencies..."
             npm install --production
